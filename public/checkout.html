@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Attune</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --cream:#FFFDF9;--warm:#FBF8F3;--stone:#E8DDD0;
+    --clay:#C17F47;--ink:#0E0B07;--text:#1E1610;--muted:#8C7A68;
+    --orange:#E8673A;--indigo:#1B5FE8;--green:#10b981;
+    --hfont:'Playfair Display',Georgia,serif;
+    --bfont:'DM Sans',sans-serif;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--cream);color:var(--text);font-family:var(--bfont);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;height:58px;background:rgba(255,253,249,.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--stone);display:flex;align-items:center;padding:0 2.5rem;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:.65rem;text-decoration:none}
+  .logo-text{font-family:var(--hfont);font-size:1.1rem;font-weight:700;color:var(--ink)}
+  .nav-secure{display:flex;align-items:center;gap:.45rem;font-size:.75rem;color:var(--muted)}
+
+  /* PROGRESS */
+  .co-progress{background:var(--warm);border-bottom:1px solid var(--stone);padding:.85rem 2.5rem;display:flex;align-items:center;gap:.35rem;font-size:.72rem;overflow-x:auto}
+  .co-step{color:var(--muted);white-space:nowrap;font-weight:500}
+  .co-step.active{color:var(--ink);font-weight:700}
+  .co-step.done{color:var(--green);font-weight:600}
+  .co-sep{color:var(--stone);margin:0 .15rem}
+
+  /* LAYOUT */
+  .co-wrap{max-width:1040px;margin:0 auto;padding:2.5rem 2rem 5rem;display:grid;grid-template-columns:1fr 360px;gap:3rem;align-items:start}
+  @media(max-width:780px){.co-wrap{grid-template-columns:1fr;padding:1.25rem 1rem 4rem}}
+
+  /* CARDS */
+  .co-card{background:white;border:1.5px solid var(--stone);border-radius:18px;overflow:hidden;margin-bottom:1.25rem}
+  .co-card-head{padding:1.1rem 1.5rem;border-bottom:1px solid var(--stone);display:flex;align-items:center;gap:.75rem}
+  .co-num{width:26px;height:26px;border-radius:50%;background:var(--ink);color:white;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .co-num.done{background:var(--green)}
+  .co-num.emoji{background:var(--orange);font-size:.9rem}
+  .co-card-title{font-size:.88rem;font-weight:700;color:var(--ink)}
+  .co-body{padding:1.4rem 1.5rem}
+
+  /* PURPOSE TOGGLE */
+  .purpose-toggle{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:0}
+  .pt-btn{border:1.5px solid var(--stone);border-radius:14px;padding:1rem 1.1rem;cursor:pointer;background:var(--warm);transition:all .18s;text-align:left;font-family:var(--bfont)}
+  .pt-btn:hover{border-color:var(--clay)}
+  .pt-btn.active{border-color:var(--orange);background:#FFF8F5}
+  .pt-icon{font-size:1.4rem;margin-bottom:.5rem}
+  .pt-label{font-size:.88rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .pt-sub{font-size:.72rem;color:var(--muted);line-height:1.45}
+
+  /* FORMS */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+  @media(max-width:480px){.form-row{grid-template-columns:1fr}}
+  .form-group{margin-bottom:1rem}
+  .form-group:last-child{margin-bottom:0}
+  .form-label{display:block;font-size:.63rem;font-weight:700;color:var(--ink);letter-spacing:.09em;text-transform:uppercase;margin-bottom:.4rem}
+  .form-input{width:100%;padding:.78rem 1rem;border:1.5px solid var(--stone);border-radius:10px;font-size:.88rem;font-family:var(--bfont);color:var(--ink);background:var(--cream);outline:none;transition:border-color .15s}
+  .form-input:focus{border-color:var(--clay)}
+  .form-input::placeholder{color:var(--muted)}
+  select.form-input{cursor:pointer}
+  .form-hint{font-size:.67rem;color:var(--muted);margin-top:.35rem;line-height:1.5}
+  .form-divider{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:1.25rem 0 1rem;display:flex;align-items:center;gap:.75rem}
+  .form-divider::before,.form-divider::after{content:'';flex:1;height:1px;background:var(--stone)}
+
+  /* INFO BOXES */
+  .info-box{background:linear-gradient(135deg,#F0F8FF,#F5F0FF);border:1.5px solid #D4E4FF;border-radius:12px;padding:.9rem 1.1rem;display:flex;gap:.7rem;align-items:flex-start;margin-bottom:1.1rem}
+  .info-box.gift{background:linear-gradient(135deg,#FFF8F5,#FFF0E8);border-color:#F0D4C0}
+  .info-box p{font-size:.74rem;color:var(--text);line-height:1.65;margin:0}
+
+  /* PHONE FIELD */
+  .phone-row{display:grid;grid-template-columns:80px 1fr;gap:.65rem}
+
+  /* CARD PAYMENT */
+  .card-field{display:grid;grid-template-columns:1fr 88px 62px;gap:.75rem}
+  .card-icons{display:flex;gap:.4rem;align-items:center;margin-bottom:.65rem}
+  .card-icon-pill{background:var(--warm);border:1px solid var(--stone);border-radius:5px;padding:.18rem .5rem;font-size:.62rem;font-weight:700;color:var(--muted);letter-spacing:.04em}
+
+  /* ORDER SUMMARY */
+  .os-box{background:var(--warm);border:1.5px solid var(--stone);border-radius:18px;overflow:hidden;position:sticky;top:74px}
+  .os-head{padding:1.1rem 1.4rem;border-bottom:1px solid var(--stone)}
+  .os-title{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:.75rem}
+  .os-pkg-badge{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.22rem .6rem;border-radius:999px;margin-bottom:.35rem}
+  .os-pkg-name{font-family:var(--hfont);font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.2rem}
+  .os-pkg-sub{font-size:.72rem;color:var(--muted)}
+  .os-lines{padding:1rem 1.4rem;border-bottom:1px solid var(--stone);display:flex;flex-direction:column;gap:.55rem}
+  .os-line{display:flex;justify-content:space-between;align-items:center;font-size:.8rem}
+  .os-line-label{color:var(--muted)}
+  .os-line-val{font-weight:600;color:var(--ink)}
+  .os-line-val.addon{color:var(--clay)}
+  .os-total-row{padding:1rem 1.4rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--stone)}
+  .os-total-label{font-size:.8rem;font-weight:700;color:var(--ink)}
+  .os-total-amount{font-family:var(--hfont);font-size:1.5rem;font-weight:700;color:var(--ink)}
+  .os-trust{padding:.9rem 1.4rem;display:flex;flex-direction:column;gap:.5rem}
+  .os-trust-item{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--muted)}
+
+  /* TERMS */
+  .terms-row{display:flex;gap:.75rem;align-items:flex-start;padding:1rem 0;border-top:1px solid var(--stone);margin-top:.75rem}
+  .terms-cb{margin-top:.15rem;accent-color:var(--orange);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+  .terms-text{font-size:.7rem;color:var(--muted);line-height:1.55}
+
+  /* SUBMIT */
+  .btn-place-order{width:100%;padding:1rem;background:var(--ink);color:white;border:none;border-radius:12px;font-size:.82rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--bfont);margin-top:1rem;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.6rem}
+  .btn-place-order:hover{background:#2a231c;transform:translateY(-1px);box-shadow:0 6px 20px rgba(14,11,7,.18)}
+  .btn-place-order:disabled{background:var(--stone);color:var(--muted);cursor:default;transform:none;box-shadow:none}
+
+  /* CONFIRMATION */
+  #co-confirm{display:none}
+  .confirm-wrap{max-width:580px;margin:0 auto;padding:5rem 2rem;text-align:center}
+  .confirm-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--green),#059669);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+  .confirm-title{font-family:var(--hfont);font-size:2rem;font-weight:700;color:var(--ink);margin-bottom:.75rem}
+  .confirm-sub{font-size:.95rem;color:var(--muted);line-height:1.75;margin-bottom:2rem}
+  .confirm-next{background:var(--warm);border:1.5px solid var(--stone);border-radius:16px;padding:1.5rem;text-align:left;margin-bottom:1.5rem}
+  .confirm-next-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--clay);font-weight:700;margin-bottom:.85rem}
+  .confirm-step{display:flex;gap:.75rem;align-items:flex-start;margin-bottom:.85rem;font-size:.85rem;color:var(--text);line-height:1.6}
+  .confirm-step:last-child{margin-bottom:0}
+  .confirm-step-num{width:22px;height:22px;border-radius:50%;background:var(--ink);color:white;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem}
+
+  /* DATA NOTE */
+  .data-note{display:flex;gap:.65rem;align-items:flex-start;background:#F0FAF5;border:1.5px solid #B8E8D0;border-radius:10px;padding:.85rem 1rem;margin-top:1rem}
+  .data-note p{font-size:.72rem;color:var(--text);line-height:1.65;margin:0}
+  .data-note a{color:#059669;font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/home" class="logo">
+    <svg width="46" height="33" viewBox="0 0 103 76" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spark_logo_co_1" x1="0" y1="0" x2="103" y2="76" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E8673A"/><stop offset="100%" stop-color="#1B5FE8"/></linearGradient></defs><path d="M14,4 L44,4 A9,9 0 0,1 53,13 L53,42 A9,9 0 0,1 44,51 L20,51 L6,61 L11,51 A6,6 0 0,1 5,45 L5,13 A9,9 0 0,1 14,4 Z" fill="url(#spark_logo_co_1)"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="white" opacity="0.93" transform="translate(13.16,11.3) scale(0.72)"/><path d="M89,14 L59,14 A9,9 0 0,0 50,23 L50,52 A9,9 0 0,0 59,61 L83,61 L97,71 L92,61 A6,6 0 0,0 98,55 L98,23 A9,9 0 0,0 89,14 Z" fill="none" stroke="url(#spark_logo_co_1)" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="url(#spark_logo_co_1)" transform="translate(58.16,21.3) scale(0.72)"/></svg>
+    <span class="logo-text">Attune</span>
+  </a>
+  <div class="nav-secure">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Secure checkout
+  </div>
+</nav>
+
+<!-- Progress -->
+<div class="co-progress" id="co-progress">
+  <span class="co-step done" id="pstep-pkg">Package selected</span>
+  <span class="co-sep">›</span>
+  <span class="co-step active" id="pstep-info">Your info</span>
+  <span class="co-sep">›</span>
+  <span class="co-step" id="pstep-pay">Payment</span>
+  <span class="co-sep">›</span>
+  <span class="co-step" id="pstep-conf">Confirmation</span>
+</div>
+
+<!-- MAIN FORM -->
+<div id="co-main">
+  <div class="co-wrap">
+    <!-- LEFT COLUMN -->
+    <div id="co-left">
+
+      <!-- STEP 0: For yourself or a gift? -->
+      <div class="co-card" id="card-purpose">
+        <div class="co-card-head">
+          <div class="co-num">1</div>
+          <div class="co-card-title">Who is this for?</div>
+        </div>
+        <div class="co-body">
+          <div class="purpose-toggle">
+            <button class="pt-btn active" id="btn-self" onclick="setPurpose('self')">
+              <div class="pt-icon">💑</div>
+              <div class="pt-label">For us</div>
+              <div class="pt-sub">My partner and I will complete it together</div>
+            </button>
+            <button class="pt-btn" id="btn-gift" onclick="setPurpose('gift')">
+              <div class="pt-icon">🎁</div>
+              <div class="pt-label">As a gift</div>
+              <div class="pt-sub">I'm buying this for someone else</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Contact info -->
+      <div class="co-card" id="card-contact">
+        <div class="co-card-head">
+          <div class="co-num" id="num-contact">2</div>
+          <div class="co-card-title" id="title-contact">Your details</div>
+        </div>
+        <div class="co-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" id="label-your-name">Your name</label>
+              <input type="text" class="form-input" id="co-name" placeholder="Sarah">
+            </div>
+            <div class="form-group" id="group-partner">
+              <label class="form-label">Partner's name</label>
+              <input type="text" class="form-input" id="co-partner" placeholder="James">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your email</label>
+            <input type="email" class="form-input" id="co-email" placeholder="you@example.com">
+            <p class="form-hint" id="email-hint">We'll send your order confirmation and account setup instructions here.</p>
+          </div>
+          <!-- Partner email (digital self-purchase only) -->
+          <div class="form-group" id="group-partner-email" style="display:none">
+            <label class="form-label">Partner's email <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input type="email" class="form-input" id="co-partner-email" placeholder="partner@example.com">
+            <p class="form-hint">If you add this, we'll send your partner their own unique account setup link directly. Otherwise we'll include it in your email for you to forward.</p>
+          </div>
+          <div class="data-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:2px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <p>Your name and email are used only to deliver your results and are <strong>never stored alongside your exercise responses</strong>. <a href="/legal">How we separate data →</a></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1b: Gift recipient - DIGITAL -->
+      <div class="co-card" id="card-recipient-digital" style="display:none">
+        <div class="co-card-head">
+          <div class="co-num emoji">🎁</div>
+          <div class="co-card-title">Gift recipient</div>
+        </div>
+        <div class="co-body">
+          <div class="info-box gift">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.05 1.1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.13a16 16 0 0 0 6.72 6.72l1.21-1.21a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.92 16z"/></svg>
+            <p><strong>Digital gift:</strong> We'll email the recipient their unique account setup link. When they claim it, they'll be prompted to enter their partner's email so both partners receive their own separate links.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Recipient's email</label>
+            <input type="email" class="form-input" id="co-recipient-email-digital" placeholder="recipient@example.com">
+            <p class="form-hint">We'll send the gift notification and account setup link directly here.</p>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Recipient's name</label>
+              <input type="text" class="form-input" id="co-recipient-name-digital" placeholder="Emma">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Their partner's name <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+              <input type="text" class="form-input" id="co-recipient-partner-digital" placeholder="Liam">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gift message <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <textarea class="form-input" id="co-gift-message-digital" rows="3" placeholder="A personal note included in their gift email..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1c: Gift recipient - PHYSICAL -->
+      <div class="co-card" id="card-recipient-physical" style="display:none">
+        <div class="co-card-head">
+          <div class="co-num emoji">🎁</div>
+          <div class="co-card-title">Gift recipient</div>
+        </div>
+        <div class="co-body">
+          <div class="info-box gift">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <p><strong>Physical gift box:</strong> The box includes a printed QR code and instructions for setting up their profile. Both partners scan separately — no email required from you. They can set up their accounts when they're ready to start.</p>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Recipient's name</label>
+              <input type="text" class="form-input" id="co-recipient-name-physical" placeholder="Emma">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Their partner's name <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+              <input type="text" class="form-input" id="co-recipient-partner-physical" placeholder="Liam">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gift message <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <textarea class="form-input" id="co-gift-message-physical" rows="3" placeholder="A personal note to include in the gift box..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Shipping (shown for physical packages) -->
+      <div class="co-card" id="card-shipping" style="display:none">
+        <div class="co-card-head">
+          <div class="co-num" id="num-shipping">3</div>
+          <div class="co-card-title" id="title-shipping">Shipping address</div>
+        </div>
+        <div class="co-body">
+          <div class="info-box" id="shipping-info-box">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--indigo)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <p id="shipping-info-text">Your gift box will be shipped to this address. Arrives within 3–5 business days.</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full name</label>
+            <input type="text" class="form-input" id="co-ship-name" placeholder="Name on package">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address line 1</label>
+            <input type="text" class="form-input" id="co-ship-addr1" placeholder="123 Main Street">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address line 2 <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input type="text" class="form-input" id="co-ship-addr2" placeholder="Apt, suite, etc.">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-input" id="co-ship-city" placeholder="New York">
+            </div>
+            <div class="form-group">
+              <label class="form-label">State / Province</label>
+              <input type="text" class="form-input" id="co-ship-state" placeholder="NY">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ZIP / Postal code</label>
+              <input type="text" class="form-input" id="co-ship-zip" placeholder="10001">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <select class="form-input" id="co-ship-country">
+                <option>United States</option>
+                <option>United Kingdom</option>
+                <option>Canada</option>
+                <option>Australia</option>
+                <option>New Zealand</option>
+                <option>Ireland</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Payment -->
+      <div class="co-card" id="card-payment">
+        <div class="co-card-head">
+          <div class="co-num" id="num-payment">3</div>
+          <div class="co-card-title">Payment</div>
+        </div>
+        <div class="co-body">
+          <div class="card-icons">
+            <span class="card-icon-pill">VISA</span>
+            <span class="card-icon-pill">MC</span>
+            <span class="card-icon-pill">AMEX</span>
+            <span class="card-icon-pill">DISC</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Card number</label>
+            <input type="text" class="form-input" id="co-card-num" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)">
+          </div>
+          <div class="card-field">
+            <div class="form-group">
+              <label class="form-label">Expiry</label>
+              <input type="text" class="form-input" id="co-expiry" placeholder="MM / YY" maxlength="7" oninput="fmtExpiry(this)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVC</label>
+              <input type="text" class="form-input" id="co-cvc" placeholder="123" maxlength="4">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Name on card</label>
+            <input type="text" class="form-input" id="co-card-name" placeholder="Sarah Johnson">
+          </div>
+
+          <!-- Terms -->
+          <div class="terms-row">
+            <input type="checkbox" class="terms-cb" id="co-terms">
+            <label for="co-terms" class="terms-text">
+              I understand that <strong>all sales are final and non-refundable</strong>. If this is a gift, I acknowledge that my purchase price remains final regardless of whether the recipient completes their exercises. By placing this order I agree to Attune's <a href="/legal#terms" style="color:var(--clay);text-decoration:none;font-weight:600">Terms of Service</a> and <a href="/legal" style="color:var(--clay);text-decoration:none;font-weight:600">Privacy Policy</a>.
+            </label>
+          </div>
+
+          <button class="btn-place-order" id="btn-place-order" onclick="placeOrder()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Place order
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end left -->
+
+    <!-- RIGHT: Order summary -->
+    <div>
+      <div class="os-box">
+        <div class="os-head">
+          <div class="os-title">Order summary</div>
+          <div class="os-pkg-badge" id="os-badge"></div>
+          <div class="os-pkg-name" id="os-pkg-name">Loading...</div>
+          <div class="os-pkg-sub" id="os-pkg-sub"></div>
+        </div>
+        <div class="os-lines" id="os-lines">
+          <div class="os-line"><span class="os-line-label" id="os-main-label">Package</span><span class="os-line-val" id="os-main-price"></span></div>
+          <div class="os-line" id="os-addon-line" style="display:none"><span class="os-line-label">Personalized Workbook</span><span class="os-line-val addon" id="os-addon-price"></span></div>
+          <div class="os-line" id="os-shipping-line" style="display:none"><span class="os-line-label">Shipping</span><span class="os-line-val">Included</span></div>
+        </div>
+        <div class="os-total-row">
+          <span class="os-total-label">Total</span>
+          <span class="os-total-amount" id="os-total"></span>
+        </div>
+        <div class="os-trust">
+          <div class="os-trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>256-bit SSL encryption</div>
+          <div class="os-trust-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Results yours to keep forever</div>
+          <div class="os-trust-item" id="os-trust-access"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Access link delivered instantly</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end co-main -->
+
+<!-- CONFIRMATION -->
+<div id="co-confirm">
+  <div class="confirm-wrap">
+    <div class="confirm-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1 class="confirm-title">You're all set.</h1>
+    <p class="confirm-sub" id="confirm-sub">Check your email — your access link is on its way.</p>
+    <p style="font-size:.7rem;color:var(--muted);margin-bottom:1.5rem">Order <span id="confirm-order-num" style="font-weight:600;color:var(--clay)"></span></p>
+    <div class="confirm-next">
+      <div class="confirm-next-label">What happens next</div>
+      <div class="confirm-step">
+        <div class="confirm-step-num">1</div>
+        <div id="confirm-step1">Check your inbox. Your access link will arrive within a few minutes.</div>
+      </div>
+      <div class="confirm-step">
+        <div class="confirm-step-num">2</div>
+        <div id="confirm-step2">Each partner opens the link on their own device and completes both exercises independently. It takes about 25 minutes.</div>
+      </div>
+      <div class="confirm-step">
+        <div class="confirm-step-num">3</div>
+        <div>Once both of you are done, your joint results unlock. No waiting — the moment both partners finish, everything becomes visible.</div>
+      </div>
+    </div>
+    <a href="/portal" style="display:inline-block;background:var(--ink);color:white;padding:.85rem 2rem;border-radius:12px;font-size:.82rem;font-weight:700;text-decoration:none;letter-spacing:.04em;text-transform:uppercase">Go to your portal →</a>
+  </div>
+</div>
+
+<script>
+// ── Package config ────────────────────────────────────────────────────────────
+const PKGS = {
+  core:        { name:'The Attune Assessment',   badge:'The Foundation',    badgeBg:'#FFF0EB', badgeColor:'#E8673A', price:59,  physical:false },
+  newlywed:    { name:'Starting Out Collection', badge:'Wedding Gift',      badgeBg:'#FFF0EB', badgeColor:'#E8673A', price:99,  physical:true  },
+  anniversary: { name:'Anniversary Collection',  badge:'Anniversary Gift',  badgeBg:'#EEEFFF', badgeColor:'#5B6DF8', price:119, physical:true  },
+  premium:     { name:'Attune Premium',          badge:'Most Complete',     badgeBg:'rgba(91,109,248,.15)', badgeColor:'#7b8fff', price:249, physical:false },
+};
+
+const params   = new URLSearchParams(location.search);
+const pkgKey   = params.get('pkg') || 'core';
+const pkg      = PKGS[pkgKey] || PKGS.core;
+const addonWb  = params.get('addon_workbook');
+const addonWbPrice = addonWb === 'print' ? 39 : addonWb === 'digital' ? 19 : 0;
+let   isGift   = false;
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+(function init() {
+  const badge = document.getElementById('os-badge');
+  badge.textContent = pkg.badge;
+  badge.style.background = pkg.badgeBg;
+  badge.style.color = pkg.badgeColor;
+  document.getElementById('os-pkg-name').textContent = pkg.name;
+  document.getElementById('os-pkg-sub').textContent = pkg.physical ? 'Physical gift box · shipping included' : 'Digital · instant delivery';
+  document.getElementById('os-main-price').textContent = '$' + pkg.price;
+  if (addonWb) {
+    document.getElementById('os-addon-line').style.display = 'flex';
+    document.getElementById('os-addon-price').textContent = '+$' + addonWbPrice + (addonWb==='print'?' (printed)':' (PDF)');
+  }
+  if (pkg.physical) document.getElementById('os-shipping-line').style.display = 'flex';
+  document.getElementById('os-total').textContent = '$' + (pkg.price + addonWbPrice);
+  if (pkg.physical) document.getElementById('card-shipping').style.display = 'block';
+  renumberSteps();
+})();
+
+// ── Purpose toggle ───────────────────────────────────────────────────────────
+function setPurpose(val) {
+  isGift = val === 'gift';
+  document.getElementById('btn-self').classList.toggle('active', !isGift);
+  document.getElementById('btn-gift').classList.toggle('active',  isGift);
+
+  // Contact card
+  document.getElementById('title-contact').textContent = isGift ? 'Your details (the buyer)' : 'Your details';
+  document.getElementById('group-partner').style.display = isGift ? 'none' : 'block';
+
+  if (!isGift) {
+    // For-self digital: show partner email field; hide for physical
+    document.getElementById('group-partner-email').style.display = !pkg.physical ? 'block' : 'none';
+    document.getElementById('email-hint').textContent = pkg.physical
+      ? 'We\'ll send your order confirmation and shipping updates here.'
+      : 'We\'ll send your order confirmation and account setup instructions here. Your partner will receive their own separate invite.';
+  } else {
+    document.getElementById('group-partner-email').style.display = 'none';
+    document.getElementById('email-hint').textContent = 'We\'ll send your order confirmation here.';
+  }
+
+  // Gift recipient cards
+  document.getElementById('card-recipient-digital').style.display = (isGift && !pkg.physical) ? 'block' : 'none';
+  document.getElementById('card-recipient-physical').style.display = (isGift &&  pkg.physical) ? 'block' : 'none';
+
+  // Shipping label
+  if (pkg.physical) {
+    document.getElementById('shipping-info-text').textContent = isGift
+      ? 'The gift box will ship to this address. Arrives within 3–5 business days.'
+      : 'Your gift box will ship here. Arrives within 3–5 business days.';
+    document.getElementById('title-shipping').textContent = isGift ? 'Ship gift to' : 'Shipping address';
+  }
+
+  renumberSteps();
+}
+
+function renumberSteps() {
+  let n = 2;
+  document.getElementById('num-contact').textContent = n++;
+  if (document.getElementById('card-shipping').style.display !== 'none') {
+    document.getElementById('num-shipping').textContent = n++;
+  }
+  document.getElementById('num-payment').textContent = n;
+}
+
+// ── Card formatting ───────────────────────────────────────────────────────────
+function fmtCard(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+function fmtExpiry(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,4);
+  if (v.length > 2) v = v.slice(0,2) + ' / ' + v.slice(2);
+  el.value = v;
+}
+
+// ── Place order ───────────────────────────────────────────────────────────────
+async function placeOrder() {
+  const name  = document.getElementById('co-name').value.trim();
+  const email = document.getElementById('co-email').value.trim();
+  const card  = document.getElementById('co-card-num').value.trim();
+  const expiry= document.getElementById('co-expiry').value.trim();
+  const cvc   = document.getElementById('co-cvc').value.trim();
+  const terms = document.getElementById('co-terms').checked;
+
+  if (!name)  return shake('co-name');
+  if (!email || !email.includes('@')) return shake('co-email');
+
+  if (isGift && !pkg.physical) {
+    const re = document.getElementById('co-recipient-email-digital').value.trim();
+    const rn = document.getElementById('co-recipient-name-digital').value.trim();
+    if (!re || !re.includes('@')) return shake('co-recipient-email-digital');
+    if (!rn) return shake('co-recipient-name-digital');
+  }
+  if (isGift && pkg.physical) {
+    const rn = document.getElementById('co-recipient-name-physical').value.trim();
+    if (!rn) return shake('co-recipient-name-physical');
+  }
+  if (pkg.physical) {
+    if (!document.getElementById('co-ship-addr1').value.trim()) return shake('co-ship-addr1');
+    if (!document.getElementById('co-ship-city').value.trim())  return shake('co-ship-city');
+    if (!document.getElementById('co-ship-zip').value.trim())   return shake('co-ship-zip');
+  }
+  if (!card || card.replace(/\s/g,'').length < 16) return shake('co-card-num');
+  if (!expiry || expiry.length < 7) return shake('co-expiry');
+  if (!cvc || cvc.length < 3)       return shake('co-cvc');
+  if (!terms) { document.getElementById('co-terms').style.outline='2px solid var(--orange)'; return; }
+
+  const btn = document.getElementById('btn-place-order');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Processing...';
+
+  const orderNum = 'AT-' + Date.now().toString(36).toUpperCase();
+
+  // Build payload for email function
+  const payload = {
+    pkgKey, pkgName: pkg.name, isGift, isPhysical: pkg.physical,
+    buyerName: name, buyerEmail: email,
+    partnerName: document.getElementById('co-partner').value.trim() || '',
+    partnerEmail: document.getElementById('co-partner-email')?.value.trim() || '',
+    recipientName: isGift ? (pkg.physical
+      ? document.getElementById('co-recipient-name-physical').value.trim()
+      : document.getElementById('co-recipient-name-digital').value.trim()) : '',
+    recipientEmail: (isGift && !pkg.physical)
+      ? document.getElementById('co-recipient-email-digital').value.trim() : '',
+    orderNum, total: pkg.price + addonWbPrice,
+    addonWorkbook: addonWb || null,
+  };
+
+  // Fire API (non-blocking — don't fail UX if email service is down)
+  fetch('/api/send-order-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(err => console.warn('Email API unavailable:', err));
+
+  setTimeout(() => showConfirmation(orderNum, name), 1400);
+}
+
+function shake(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'var(--orange)';
+  el.style.animation = 'shake .35s ease';
+  setTimeout(() => { el.style.animation = ''; el.style.borderColor = ''; }, 400);
+  el.focus();
+}
+
+function showConfirmation(orderNum, name) {
+  document.getElementById('co-main').style.display = 'none';
+  document.getElementById('co-progress').style.display = 'none';
+  document.getElementById('co-confirm').style.display = 'block';
+
+  const firstName = name.split(' ')[0] || 'you';
+  if (isGift) {
+    const rname = (pkg.physical
+      ? document.getElementById('co-recipient-name-physical')
+      : document.getElementById('co-recipient-name-digital'))?.value.trim().split(' ')[0] || 'them';
+    document.getElementById('confirm-sub').textContent = pkg.physical
+      ? `Order confirmed. Your gift box is being prepared and will ship within 3–5 business days.`
+      : `Order confirmed. We've sent ${rname} an email with their gift and account setup link.`;
+    document.getElementById('confirm-step1').textContent = pkg.physical
+      ? `Watch for a shipping confirmation email. Your gift box includes a printed QR code and full instructions — ${rname} just needs to scan it to get started.`
+      : `${rname} will receive an email with their unique link. When they claim it, they'll be prompted to enter their partner's email so both partners get set up separately.`;
+    document.getElementById('confirm-step2').textContent = pkg.physical
+      ? `${rname} and their partner each scan their QR code on their own device and complete the exercises independently.`
+      : `Each partner completes both exercises on their own device. Results stay private until both are done.`;
+  } else {
+    document.getElementById('confirm-sub').textContent = `Order confirmed, ${firstName}. Check your inbox — your account setup instructions are on their way.`;
+    const partnerEmail = document.getElementById('co-partner-email')?.value.trim();
+    document.getElementById('confirm-step1').textContent = partnerEmail
+      ? `Check your inbox for your account setup link. We've also sent your partner their own separate invite to ${partnerEmail}.`
+      : `Check your inbox for your account setup link and your partner's invite link to forward to them.`;
+  }
+
+  document.getElementById('confirm-order-num').textContent = orderNum;
+
+  ['pstep-pkg','pstep-info','pstep-pay','pstep-conf'].forEach(id => {
+    document.getElementById(id).className = 'co-step done';
+  });
+  document.getElementById('co-progress').style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+<style>
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-5px)}
+  40%{transform:translateX(5px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+</style>
+
+</body>
+</html>

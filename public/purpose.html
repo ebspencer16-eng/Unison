@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Purpose — Attune</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --cream:#FFFDF9;--warm:#FBF8F3;--stone:#E8DDD0;
+    --clay:#C17F47;--ink:#0E0B07;--text:#1E1610;--muted:#8C7A68;
+    --orange:#E8673A;--indigo:#1B5FE8;
+    --hfont:'Playfair Display',Georgia,serif;
+    --bfont:'DM Sans',sans-serif;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--cream);color:var(--text);font-family:var(--bfont);-webkit-font-smoothing:antialiased}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;background:rgba(255,253,249,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--stone);display:flex;align-items:center;padding:0 2.5rem;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:.65rem;text-decoration:none}
+  .logo-mark{display:flex;align-items:center;flex-shrink:0}
+  .logo-text{font-family:var(--hfont);font-size:1.15rem;font-weight:700;color:var(--ink)}
+  .nav-center{display:flex;gap:2.5rem;list-style:none;position:absolute;left:50%;transform:translateX(-50%);align-items:center}.nav-center li{display:flex;align-items:center}
+  .nav-center a{text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;transition:color .15s}
+  .nav-center a:hover{color:var(--ink)}
+  .nav-dropdown{position:relative}
+  .nav-dropdown-toggle{text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;transition:color .15s;cursor:pointer;display:flex;align-items:center;gap:.28rem;background:none;border:none;padding:0;font-family:var(--bfont)}
+  .nav-dropdown-toggle:hover,.nav-dropdown-toggle.active{color:var(--ink)}
+  .nav-dropdown-toggle svg{transition:transform .2s}
+  .nav-dropdown:hover .nav-dropdown-toggle svg{transform:rotate(180deg)}
+  .nav-dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background:rgba(255,253,249,.98);backdrop-filter:blur(16px);border:1.5px solid var(--stone);border-radius:14px;padding:.6rem;min-width:190px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s,visibility .15s;box-shadow:0 12px 40px rgba(14,11,7,.12);z-index:200;margin-top:0}
+  .nav-dropdown:hover .nav-dropdown-menu{opacity:1;visibility:visible;pointer-events:auto}
+  .nav-dropdown-menu::before{content:'';position:absolute;top:-16px;left:-10px;right:-10px;height:16px;background:transparent;}
+  .nav-dropdown-menu a{display:block;padding:.55rem .8rem;font-size:.78rem;color:var(--muted);text-decoration:none;border-radius:8px;transition:all .15s;font-weight:500}
+  .nav-dropdown-menu a:hover{background:var(--warm);color:var(--ink)}
+  .nav-dropdown-menu .dd-divider{height:1px;background:var(--stone);margin:.35rem .5rem}
+  .nav-center a.active{color:var(--ink);font-weight:600}
+  .nav-right{display:flex;align-items:center;gap:1.25rem}
+  .nav-signin{font-size:.8rem;font-weight:500;color:var(--muted);text-decoration:none;transition:color .15s}
+  .nav-signin:hover{color:var(--ink)}
+  .btn-nav{background:var(--ink);color:white;padding:.5rem 1.2rem;border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;display:inline-block;transition:opacity .15s}
+  .btn-nav:hover{opacity:.82}
+  .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px}
+  .hamburger span{display:block;width:20px;height:2px;background:var(--ink);border-radius:2px;transition:all .25s}
+  .mobile-menu{display:none;position:fixed;top:58px;left:0;right:0;background:rgba(255,253,249,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--stone);padding:1.25rem 2rem 1.5rem;z-index:99;flex-direction:column;gap:.2rem}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a{font-size:.9rem;font-weight:500;color:var(--muted);text-decoration:none;padding:.6rem 0;border-bottom:1px solid var(--stone);transition:color .15s}
+  .mobile-menu a:last-child{border-bottom:none}
+  .mobile-menu a:hover{color:var(--ink)}
+  .mm-section{display:flex;flex-direction:column;border-bottom:1px solid var(--stone);padding-bottom:.25rem;margin-bottom:.25rem}
+  .mm-label{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:.55rem 0 .2rem .75rem}
+  .mm-sub{padding-left:.75rem !important;font-size:.85rem !important;border-bottom:none !important}
+  .mm-sub:last-child{border-bottom:none}
+
+  /* SHARED SECTION SYSTEM */
+  .si{max-width:920px;margin:0 auto;padding:5rem 2.5rem}
+  @media(max-width:768px){.si{padding:3rem 1.5rem}}
+  .s-eye{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--clay);font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
+  .s-eye::before{content:'';width:20px;height:1.5px;background:var(--clay)}
+  .s-title{font-family:var(--hfont);font-size:clamp(1.85rem,3.2vw,2.7rem);font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:1.1rem;letter-spacing:-.02em}
+  .s-title em{font-style:italic;color:var(--orange)}
+  .s-sub{font-size:.95rem;color:var(--muted);line-height:1.78;font-weight:300;max-width:600px}
+
+  /* PAGE HEADER */
+  .eyebrow{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--clay);font-weight:700;margin-bottom:.9rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
+  .eyebrow::before,.eyebrow::after{content:'';width:20px;height:1.5px;background:var(--clay)}
+  .page-header{padding:8rem 2.5rem 4rem;text-align:center;max-width:680px;margin:0 auto}
+  .page-title{font-family:var(--hfont);font-size:clamp(2.4rem,4.5vw,3.4rem);font-weight:700;line-height:1.06;color:var(--ink);margin-bottom:1.25rem;letter-spacing:-.02em}
+  .page-title em{font-style:italic;color:var(--orange)}
+  .page-sub{font-size:1rem;color:var(--muted);line-height:1.78;font-weight:300}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .fu1{animation:fadeUp .6s ease both}
+
+  /* DARK PHILOSOPHY SECTION */
+  .bg-dark{background:linear-gradient(150deg,#0f0c29,#181545)}
+  .bg-dark .si{padding-top:5rem;padding-bottom:5rem}
+  .bg-dark .s-eye{color:rgba(232,103,58,.8)}
+  .bg-dark .s-eye::before{background:rgba(232,103,58,.5)}
+  .bg-dark .s-title{color:white}
+  .bg-dark .s-sub{color:rgba(255,255,255,.78);max-width:600px}
+
+  /* QUOTE CARDS */
+  .phil-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+  .phil-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:1.85rem}
+  .phil-q{font-family:var(--hfont);font-size:1.05rem;font-style:italic;line-height:1.62;color:rgba(255,255,255,.94);margin-bottom:1.1rem}
+  .phil-src{font-size:.7rem;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+
+  /* PRINCIPLES SECTION */
+  .principles{background:white;border-top:1px solid var(--stone);border-bottom:1px solid var(--stone)}
+  .principles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:2.5rem}
+  .principle-card{padding:1.75rem;background:var(--warm);border:1px solid var(--stone);border-radius:16px}
+  .principle-num{font-family:var(--hfont);font-size:2rem;font-weight:700;color:rgba(232,103,58,.25);margin-bottom:.75rem;line-height:1}
+  .principle-title{font-family:var(--hfont);font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:.5rem}
+  .principle-body{font-size:.84rem;color:var(--muted);line-height:1.72;font-weight:300}
+
+  /* RESEARCH SECTION */
+  .research-section{background:var(--warm)}
+  .research-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:2.5rem}
+  .research-card{background:white;border:1.5px solid var(--stone);border-radius:14px;padding:1.5rem;position:relative}
+  .research-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;border-radius:14px 0 0 14px}
+  .research-card.rc-orange::before{background:var(--orange)}
+  .research-card.rc-blue::before{background:var(--indigo)}
+  .research-card.rc-green::before{background:#10b981}
+  .research-label{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:.85rem;font-weight:700}
+  .research-body{font-size:.84rem;color:var(--text);line-height:1.72;font-weight:300;margin-bottom:.85rem}
+  .research-src{font-size:.68rem;color:var(--muted);font-style:italic}
+
+  /* CTA SECTION */
+  .cta-section{background:var(--warm);border-top:1px solid var(--stone);padding:5rem 0}
+  .cta-inner{max-width:640px;margin:0 auto;padding:0 2.5rem;text-align:center}
+  .cta-section h2{font-family:var(--hfont);font-size:clamp(1.9rem,3.5vw,2.8rem);font-weight:700;color:var(--ink);line-height:1.1;margin-bottom:1.25rem}
+  .cta-section p{font-size:.95rem;color:var(--muted);line-height:1.75;font-weight:300;margin-bottom:2rem}
+  .cta-btn{background:var(--ink);color:white;padding:.85rem 2.2rem;border-radius:12px;font-size:.9rem;font-weight:700;text-decoration:none;display:inline-block;transition:opacity .15s;font-family:var(--bfont)}
+  .cta-btn:hover{opacity:.82}
+
+  /* FOOTER */
+  .site-footer{background:var(--ink);color:rgba(255,255,255,.55);padding:4rem 0 2rem;width:100%}
+  .sf-inner{max-width:1120px;margin:0 auto;padding:0 2.5rem 3rem;display:grid;grid-template-columns:1fr 2fr;gap:4rem;border-bottom:1px solid rgba(255,255,255,.07)}
+  .sf-brand .logo-text{color:rgba(255,255,255,.9)}
+  .sf-tagline{font-size:.8rem;color:rgba(255,255,255,.38);line-height:1.6;margin-top:.75rem;font-weight:300;max-width:200px}
+  .sf-links{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem}
+  .sf-col p.sf-col-title{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:1rem;font-weight:700}
+  .sf-col a{display:block;font-size:.78rem;color:rgba(255,255,255,.5);text-decoration:none;margin-bottom:.55rem;transition:color .15s;font-weight:300}
+  .sf-col a:hover{color:rgba(255,255,255,.9)}
+  .sf-bottom{max-width:1120px;margin:0 auto;padding:1.5rem 2.5rem 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+  .sf-copy,.sf-email{font-size:.72rem;color:rgba(255,255,255,.28);font-weight:300}
+
+  @media(max-width:900px){
+    .phil-grid,.principles-grid,.research-grid,.sf-links{grid-template-columns:1fr}
+    .sf-inner{grid-template-columns:1fr}
+    .nav-center{display:none}
+    .nav-right .btn-nav,.nav-signin{display:none}
+    .hamburger{display:flex}
+  }
+
+  @media(max-width:768px){.page-header{padding:5rem 1.5rem 2.5rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/home" class="logo">
+    <svg width="46" height="33" viewBox="0 0 103 76" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spark_logo_purpose_1" x1="0" y1="0" x2="103" y2="76" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E8673A"/><stop offset="100%" stop-color="#1B5FE8"/></linearGradient></defs><path d="M14,4 L44,4 A9,9 0 0,1 53,13 L53,42 A9,9 0 0,1 44,51 L20,51 L6,61 L11,51 A6,6 0 0,1 5,45 L5,13 A9,9 0 0,1 14,4 Z" fill="url(#spark_logo_purpose_1)"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="white" opacity="0.93" transform="translate(13.16,11.3) scale(0.72)"/><path d="M89,14 L59,14 A9,9 0 0,0 50,23 L50,52 A9,9 0 0,0 59,61 L83,61 L97,71 L92,61 A6,6 0 0,0 98,55 L98,23 A9,9 0 0,0 89,14 Z" fill="none" stroke="url(#spark_logo_purpose_1)" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="url(#spark_logo_purpose_1)" transform="translate(58.16,21.3) scale(0.72)"/></svg>
+    <span class="logo-text">Attune</span>
+  </a>
+  <ul class="nav-center">
+    <li><a href="/home">Home</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle active">Learn <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dropdown-menu">
+        <a href="/purpose" class="active">Our Purpose</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/whats-included">What's included</a>
+        <div class="dd-divider"></div>
+        <a href="/resources">Resources</a>
+        <a href="/faq">FAQs</a>
+        <a href="/reviews">Reviews</a>
+      </div>
+    </li>
+    <li><a href="/offerings">Gifts &amp; Packages</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="/portal" class="nav-signin">Sign in</a>
+    <a href="/portal" class="btn-nav">Get started</a>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="/home">Home</a>
+  <div class="mm-section">
+    <span class="mm-label">Learn</span>
+    <a href="/purpose" class="mm-sub" style="color:var(--ink);font-weight:600">Our Purpose</a>
+    <a href="/how-it-works" class="mm-sub">How it works</a>
+    <a href="/whats-included" class="mm-sub">What's included</a>
+    <a href="/resources" class="mm-sub">Resources</a>
+    <a href="/faq" class="mm-sub">FAQs</a>
+    <a href="/reviews" class="mm-sub">Reviews</a>
+  </div>
+  <a href="/offerings">Gifts &amp; Packages</a>
+  <a href="/portal">Sign in</a>
+  <a href="/portal" class="mm-cta">Get started →</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header fu1">
+  <p class="eyebrow">Our Purpose</p>
+  <h1 class="page-title">You love each other. <em>Attune helps you understand each other.</em></h1>
+  <p class="page-sub">Good intentions aren't enough on their own. Understanding each other — really understanding each other — requires a shared framework built from your real answers. That's what Attune is for.</p>
+</div>
+
+<!-- WHY WE BUILT THIS -->
+<div class="bg-dark">
+  <div class="si">
+    <p class="s-eye">Attune, because understanding takes intention</p>
+    <h2 class="s-title">Most couples talk. Fewer have a structure for it.</h2>
+    <p class="s-sub">Not because couples don't care — but because they don't have a structure for them. Attune gives you that structure. Built from your actual answers, not someone else's framework.</p>
+    <div class="phil-grid">
+      <div class="phil-card">
+        <p class="phil-q">"The most important conversations are often the ones we keep putting off — not because they're hard, but because we don't know how to start them."</p>
+        <p class="phil-src">On why Attune exists</p>
+      </div>
+      <div class="phil-card">
+        <p class="phil-q">"Understanding how your partner is wired isn't about changing them. It's about meeting them where they actually are — and growing from there."</p>
+        <p class="phil-src">On understanding differences</p>
+      </div>
+      <div class="phil-card">
+        <p class="phil-q">"The couples who navigate differences well aren't the ones without them — they're the ones who see them clearly and choose each other anyway."</p>
+        <p class="phil-src">On what alignment actually means</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINCIPLES -->
+<div class="principles">
+  <div class="si">
+    <p class="s-eye">How we think about this</p>
+    <h2 class="s-title">Three principles behind everything we build.</h2>
+    <p class="s-sub">Attune isn't built on generic advice. It's built on the conviction that real insight comes from your own answers — not someone else's assumptions.</p>
+    <div class="principles-grid">
+      <div class="principle-card">
+        <div class="principle-num">01</div>
+        <div class="principle-title">Your answers, not ours</div>
+        <p class="principle-body">Attune doesn't tell you who you are as a couple. It helps you see yourselves — from your own responses, side by side. The insight is always yours.</p>
+      </div>
+      <div class="principle-card">
+        <div class="principle-num">02</div>
+        <div class="principle-title">Clarity before conflict</div>
+        <p class="principle-body">Assumptions about roles, finances, communication, and values quietly shape relationships long before they surface as friction. Naming them early changes everything.</p>
+      </div>
+      <div class="principle-card">
+        <div class="principle-num">03</div>
+        <div class="principle-title">Built for the long haul</div>
+        <p class="principle-body">Understanding isn't a one-time event. What each of you needs and envisions will evolve. Attune is designed to be revisited — not just a starting point, but an ongoing reference.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESEARCH -->
+<div class="research-section">
+  <div class="si">
+    <p class="s-eye">Grounded in research</p>
+    <h2 class="s-title">This isn't intuition. It's evidence.</h2>
+    <p class="s-sub">The exercises behind Attune are informed by decades of relationship science — not pop psychology. Here's what the research says about why structured understanding matters.</p>
+    <div class="research-grid">
+      <div class="research-card rc-orange">
+        <div class="research-label">Expectations &amp; satisfaction</div>
+        <p class="research-body">Couples who discuss expectations early in the relationship report significantly higher relationship satisfaction — even years later. The conversations that feel premature are often the most valuable.</p>
+        <p class="research-src">Gottman Institute — relationship research</p>
+      </div>
+      <div class="research-card rc-blue">
+        <div class="research-label">Unspoken assumptions</div>
+        <p class="research-body">67% of relationship dissatisfaction stems from unspoken assumptions about roles, finances, and communication styles. Most couples never surface these assumptions until they become problems.</p>
+        <p class="research-src">Journal of Marriage and Family</p>
+      </div>
+      <div class="research-card rc-green">
+        <div class="research-label">Mutual understanding</div>
+        <p class="research-body">Self-disclosure and partner understanding are among the strongest predictors of long-term relationship quality. Being genuinely known — and knowing your partner — is foundational, not supplementary.</p>
+        <p class="research-src">Reis &amp; Shaver — interpersonal process model</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to understand each other at a different level?</h2>
+    <p>Start the exercises together. It takes about an hour each — and gives you something most couples spend years trying to find.</p>
+    <a href="/offerings" class="cta-btn">See packages &amp; pricing →</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <div class="sf-brand">
+      <a href="/home" class="logo">
+        <svg width="46" height="33" viewBox="0 0 103 76" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spark_logo_purpose_2" x1="0" y1="0" x2="103" y2="76" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E8673A"/><stop offset="100%" stop-color="#1B5FE8"/></linearGradient></defs><path d="M14,4 L44,4 A9,9 0 0,1 53,13 L53,42 A9,9 0 0,1 44,51 L20,51 L6,61 L11,51 A6,6 0 0,1 5,45 L5,13 A9,9 0 0,1 14,4 Z" fill="url(#spark_logo_purpose_2)"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="white" opacity="0.93" transform="translate(13.16,11.3) scale(0.72)"/><path d="M89,14 L59,14 A9,9 0 0,0 50,23 L50,52 A9,9 0 0,0 59,61 L83,61 L97,71 L92,61 A6,6 0 0,0 98,55 L98,23 A9,9 0 0,0 89,14 Z" fill="none" stroke="url(#spark_logo_purpose_2)" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="url(#spark_logo_purpose_2)" transform="translate(58.16,21.3) scale(0.72)"/></svg>
+        <span class="logo-text" style="font-size:1.05rem;">Attune</span>
+      </a>
+      <p class="sf-tagline">Attune, because understanding<br>takes intention.</p>
+    </div>
+    <div class="sf-links">
+      <div class="sf-col">
+        <p class="sf-col-title">Product</p>
+        <a href="/home">Home</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/offerings">Gifts &amp; Packages</a>
+        <a href="/portal">Get started</a>
+      </div>
+      <div class="sf-col">
+        <p class="sf-col-title">Learn</p>
+        <a href="/purpose">Our Purpose</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/whats-included">What's included</a>
+        <a href="/resources">Resources</a>
+        <a href="/faq">FAQs</a>
+        <a href="/reviews">Reviews</a>
+      </div>
+      <div class="sf-col">
+        <p class="sf-col-title">Support</p>
+        <a href="/faq">FAQs</a>
+        <a href="mailto:hello@attune.com">Contact us</a>
+        <a href="/legal">Privacy policy</a>
+        <a href="/legal#terms">Terms of service</a>
+      </div>
+      <div class="sf-col">
+        <p class="sf-col-title">Account</p>
+        <a href="/portal">Sign in</a>
+        <a href="/portal">Create account</a>
+        <a href="/offerings">Browse packages</a>
+      </div>
+    </div>
+  </div>
+  <div class="sf-bottom">
+    <p class="sf-copy">© 2025 Attune.</p>
+    <p class="sf-email">hello@attune.com</p>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('hamburger');
+  if (menu && menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+
+  // Close mobile menu on outside tap
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobile-menu');
+    const burger = document.getElementById('hamburger');
+    if (menu && menu.classList.contains('open') && !menu.contains(e.target) && !burger.contains(e.target)) {
+      menu.classList.remove('open');
+      burger.classList.remove('open');
+    }
+  });
+</script>
+</body>
+</html>

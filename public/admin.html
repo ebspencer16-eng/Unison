@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spark Analytics — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0D0F14;--surface:#161920;--card:#1D2029;--border:#2A2E3A;
+    --text:#E8EAF0;--muted:#6B7280;--dim:#4B5563;
+    --orange:#FF6B35;--indigo:#6C7FFF;--green:#34D399;--amber:#FBBF24;--rose:#F87171;
+    --hfont:'Playfair Display',Georgia,serif;
+    --bfont:'DM Sans',sans-serif;
+    --mono:'DM Mono',monospace;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--bfont);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex}
+
+  /* SIDEBAR */
+  .sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);min-height:100vh;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+  .sb-brand{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid var(--border)}
+  .sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+  .sb-logo-mark{display:flex;align-items:center;justify-content:center}
+  .sb-logo-text{font-family:var(--hfont);font-size:1rem;font-weight:700;color:var(--text)}
+  .sb-subtitle{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:.3rem;font-family:var(--mono)}
+  .sb-nav{padding:1rem 0;flex:1}
+  .sb-section{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-weight:700;padding:.5rem 1.25rem .35rem;font-family:var(--mono)}
+  .sb-item{display:flex;align-items:center;gap:.65rem;padding:.6rem 1.25rem;font-size:.8rem;color:var(--muted);cursor:pointer;transition:all .15s;border-left:2px solid transparent;text-decoration:none}
+  .sb-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
+  .sb-item.active{color:var(--text);border-left-color:var(--orange);background:rgba(255,107,53,.06);font-weight:600}
+  .sb-item svg{flex-shrink:0}
+  .sb-footer{padding:.85rem 1.25rem;border-top:1px solid var(--border);font-size:.68rem;color:var(--dim)}
+  .sb-footer a{color:var(--dim);text-decoration:none;display:block;padding:.2rem 0;transition:color .15s}
+  .sb-footer a:hover{color:var(--muted)}
+
+  /* MAIN */
+  .main{flex:1;overflow:auto}
+  .page{display:none;padding:2rem 2.5rem;min-height:100vh}
+  .page.active{display:block}
+
+  /* TOPBAR */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+  .topbar-title{font-family:var(--hfont);font-size:1.6rem;font-weight:700;color:var(--text)}
+  .topbar-sub{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+  .topbar-right{display:flex;align-items:center;gap:.75rem}
+  .date-badge{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.72rem;color:var(--muted);font-family:var(--mono)}
+  .export-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.4rem .85rem;font-size:.72rem;color:var(--text);cursor:pointer;font-family:var(--bfont);transition:all .15s;display:flex;align-items:center;gap:.4rem}
+  .export-btn:hover{border-color:var(--orange);color:var(--orange)}
+
+  /* DATA NOTICE */
+  .data-notice{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:.85rem 1.1rem;margin-bottom:1.75rem;display:flex;gap:.75rem;align-items:flex-start}
+  .data-notice p{font-size:.74rem;color:#6EE7B7;line-height:1.65}
+  .data-notice strong{color:var(--green)}
+
+  /* KPI CARDS */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem;margin-bottom:1.75rem}
+  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.35rem;position:relative;overflow:hidden}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+  .kpi-card.orange::before{background:var(--orange)}
+  .kpi-card.indigo::before{background:var(--indigo)}
+  .kpi-card.green::before{background:var(--green)}
+  .kpi-card.amber::before{background:var(--amber)}
+  .kpi-card.rose::before{background:var(--rose)}
+  .kpi-label{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:700;font-family:var(--mono);margin-bottom:.5rem}
+  .kpi-val{font-size:2rem;font-weight:700;color:var(--text);font-family:var(--hfont);line-height:1}
+  .kpi-sub{font-size:.7rem;color:var(--muted);margin-top:.4rem}
+  .kpi-trend{display:inline-flex;align-items:center;gap:.25rem;font-size:.68rem;font-weight:600;margin-top:.35rem}
+  .kpi-trend.up{color:var(--green)}
+  .kpi-trend.down{color:var(--rose)}
+
+  /* CHART CARDS */
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+  .chart-grid.three{grid-template-columns:1fr 1fr 1fr}
+  .chart-grid.full{grid-template-columns:1fr}
+  @media(max-width:1100px){.chart-grid,.chart-grid.three{grid-template-columns:1fr}}
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .chart-head{padding:1.1rem 1.35rem .85rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .chart-title{font-size:.8rem;font-weight:700;color:var(--text)}
+  .chart-subtitle{font-size:.68rem;color:var(--muted);margin-top:.15rem}
+  .chart-body{padding:1.25rem}
+  .chart-body canvas{max-height:220px}
+
+  /* INSIGHT ROW */
+  .insight-list{display:flex;flex-direction:column;gap:.6rem}
+  .insight-row{display:flex;align-items:center;gap:.85rem}
+  .insight-bar-wrap{flex:1;height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+  .insight-bar{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+  .insight-label{font-size:.75rem;color:var(--text);width:160px;flex-shrink:0}
+  .insight-pct{font-size:.72rem;color:var(--muted);font-family:var(--mono);width:35px;text-align:right;flex-shrink:0}
+
+  /* RESPONSE TABLE */
+  .response-table{width:100%;border-collapse:collapse;font-size:.78rem}
+  .response-table th{text-align:left;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:700;padding:.65rem 1rem;border-bottom:1px solid var(--border);font-family:var(--mono)}
+  .response-table td{padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);color:var(--muted);vertical-align:middle}
+  .response-table tr:hover td{background:rgba(255,255,255,.02);color:var(--text)}
+  .pkg-tag{display:inline-block;padding:.2rem .55rem;border-radius:5px;font-size:.62rem;font-weight:700;font-family:var(--mono)}
+  .score-bar{height:5px;border-radius:3px;background:var(--border);overflow:hidden;width:60px;display:inline-block;vertical-align:middle;margin-left:.4rem}
+  .score-fill{height:100%;border-radius:3px}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;gap:.65rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center}
+  .filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.45rem .85rem;font-size:.75rem;color:var(--text);cursor:pointer;font-family:var(--bfont);outline:none;transition:border-color .15s}
+  .filter-select:focus{border-color:var(--orange)}
+  .filter-label{font-size:.7rem;color:var(--muted)}
+
+  /* HEATMAP */
+  .heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .hm-cell{height:12px;border-radius:2px;transition:opacity .15s}
+  .hm-cell:hover{opacity:.7}
+  .hm-labels{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:.4rem;font-size:.58rem;color:var(--dim);font-family:var(--mono)}
+
+  /* SCORE DIST */
+  .score-dist{display:flex;align-items:flex-end;gap:3px;height:80px}
+  .score-bar-v{flex:1;min-width:0;border-radius:3px 3px 0 0;background:var(--indigo);transition:height .8s cubic-bezier(.16,1,.3,1);position:relative}
+  .score-bar-v:hover::after{content:attr(data-tip);position:absolute;bottom:105%;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:.2rem .45rem;font-size:.62rem;color:var(--text);white-space:nowrap;font-family:var(--mono);pointer-events:none}
+
+  /* TABS */
+  .tabs{display:flex;gap:.5rem;margin-bottom:1.25rem;border-bottom:1px solid var(--border);padding-bottom:.75rem}
+  .tab{font-size:.78rem;color:var(--muted);cursor:pointer;padding:.3rem .75rem;border-radius:7px;transition:all .15s}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:rgba(255,107,53,.12);color:var(--orange);font-weight:600}
+
+  /* COHORT TABLE */
+  .cohort-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:1px;background:var(--border)}
+  .cohort-cell{background:var(--card);padding:.65rem .75rem;font-size:.72rem;font-family:var(--mono);text-align:center}
+  .cohort-cell.header{font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--dim);background:var(--surface)}
+
+  /* SATISFACTION GAUGE */
+  .gauge-wrap{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:1.5rem 0}
+
+  /* SCROLLABLE TABLE WRAPPER */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* PILL */
+  .pill{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .55rem;border-radius:20px;font-size:.62rem;font-weight:600;font-family:var(--mono)}
+  .pill.green{background:rgba(52,211,153,.1);color:var(--green)}
+  .pill.amber{background:rgba(251,191,36,.1);color:var(--amber)}
+  .pill.rose{background:rgba(248,113,113,.1);color:var(--rose)}
+  .pill.indigo{background:rgba(108,127,255,.1);color:var(--indigo)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-brand">
+    <a href="/home" class="sb-logo">
+      <div class="sb-logo-mark"><svg width="46" height="33" viewBox="0 0 103 76" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spark_logo_4_1" x1="0" y1="0" x2="103" y2="76" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E8673A"/><stop offset="100%" stop-color="#1B5FE8"/></linearGradient></defs><path d="M14,4 L44,4 A9,9 0 0,1 53,13 L53,42 A9,9 0 0,1 44,51 L20,51 L6,61 L11,51 A6,6 0 0,1 5,45 L5,13 A9,9 0 0,1 14,4 Z" fill="url(#spark_logo_4_1)"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="white" opacity="0.93" transform="translate(13.16,11.3) scale(0.72)"/><path d="M89,14 L59,14 A9,9 0 0,0 50,23 L50,52 A9,9 0 0,0 59,61 L83,61 L97,71 L92,61 A6,6 0 0,0 98,55 L98,23 A9,9 0 0,0 89,14 Z" fill="none" stroke="url(#spark_logo_4_1)" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="url(#spark_logo_4_1)" transform="translate(58.16,21.3) scale(0.72)"/></svg></div>
+      <div>
+        <div class="sb-logo-text">Spark</div>
+        <div class="sb-subtitle">Analytics</div>
+      </div>
+    </a>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <a class="sb-item active" onclick="showPage('overview')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <div class="sb-section">Revenue</div>
+    <a class="sb-item" onclick="showPage('orders')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Orders
+    </a>
+    <a class="sb-item" onclick="showPage('packages')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Package Mix
+    </a>
+    <div class="sb-section">Operations</div>
+    <a class="sb-item" onclick="showPage('fulfillment')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      Fulfillment
+      <span id="sb-fulfillment-badge" style="margin-left:auto;background:var(--amber);color:#000;font-size:.55rem;font-weight:800;padding:.1rem .4rem;border-radius:20px;font-family:var(--mono);"></span>
+    </a>
+    <div class="sb-section">Users</div>
+    <a class="sb-item" onclick="showPage('demographics')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Demographics
+    </a>
+    <a class="sb-item" onclick="showPage('responses')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Responses
+    </a>
+    <div class="sb-section">Insights</div>
+    <a class="sb-item" onclick="showPage('satisfaction')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      Satisfaction
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <div style="font-size:.6rem;color:var(--dim);margin-bottom:.5rem;font-family:var(--mono);">DATA NOTICE</div>
+    <p style="font-size:.65rem;color:var(--dim);line-height:1.55;">All data is anonymized. No names or emails are present in this system.</p>
+    <a href="/legal" style="margin-top:.5rem;">Privacy policy →</a>
+    <a href="/home">Back to site →</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ══ DASHBOARD ══ -->
+  <div class="page active" id="page-overview">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Dashboard</div>
+        <div class="topbar-sub">All anonymized data — no PII present</div>
+      </div>
+      <div class="topbar-right">
+        <span class="date-badge" id="today-date"></span>
+        <button class="export-btn" onclick="exportCSV()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
+    <div class="data-notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <p><strong>Data separation active.</strong> This dashboard operates on fully anonymized records. No names, email addresses, or personally identifiable information are present in any dataset shown here. Records are identified by random UUID only. This system has no access to the authentication system that holds PII.</p>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card orange">
+        <div class="kpi-label">Total orders</div>
+        <div class="kpi-val">847</div>
+        <div class="kpi-trend up">↑ 12% this month</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Total revenue</div>
+        <div class="kpi-val">$94K</div>
+        <div class="kpi-trend up">↑ 18% vs last month</div>
+      </div>
+      <div class="kpi-card indigo">
+        <div class="kpi-label">Completion rate</div>
+        <div class="kpi-val">73%</div>
+        <div class="kpi-sub">Both partners complete</div>
+        <div class="kpi-trend up">↑ 4pts from last month</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Avg order value</div>
+        <div class="kpi-val">$111</div>
+        <div class="kpi-trend up">↑ $8 vs last month</div>
+      </div>
+      <div class="kpi-card amber" style="cursor:pointer;" onclick="document.querySelector('[onclick*=fulfillment]').click()">
+        <div class="kpi-label">📦 Pending shipments</div>
+        <div class="kpi-val" id="dash-pending-count">—</div>
+        <div class="kpi-sub">Physical orders to fulfill</div>
+        <div style="font-size:.65rem;color:var(--amber);margin-top:.4rem;font-weight:600;">View fulfillment →</div>
+      </div>
+      <div class="kpi-card rose">
+        <div class="kpi-label">Avg fulfillment time</div>
+        <div class="kpi-val" id="dash-avg-ship">—</div>
+        <div class="kpi-sub" id="dash-avg-ship-sub">Days order → shipped</div>
+        <div class="kpi-trend up" id="dash-ship-trend"></div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Revenue over time</div>
+            <div class="chart-subtitle">Last 12 months</div>
+          </div>
+        </div>
+        <div class="chart-body"><canvas id="chart-revenue"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Package mix</div>
+            <div class="chart-subtitle">Orders by package type</div>
+          </div>
+        </div>
+        <div class="chart-body"><canvas id="chart-pkg-mix"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Relationship length distribution</div>
+            <div class="chart-subtitle">Anonymous demographic breakdown</div>
+          </div>
+        </div>
+        <div class="chart-body">
+          <div class="insight-list" id="rellength-bars" style="margin-top:.5rem;"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">How couples found Spark</div>
+            <div class="chart-subtitle">Acquisition source</div>
+          </div>
+        </div>
+        <div class="chart-body"><canvas id="chart-source"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ORDERS ══ -->
+  <div class="page" id="page-orders">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Orders</div>
+        <div class="topbar-sub">Anonymized transaction records</div>
+      </div>
+      <div class="topbar-right">
+        <button class="export-btn" onclick="exportCSV()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <span class="filter-label">Filter:</span>
+      <select class="filter-select" onchange="filterOrders(this)">
+        <option value="">All packages</option>
+        <option value="core">Assessment</option>
+        <option value="newlywed">Starting Out</option>
+        <option value="anniversary">Anniversary</option>
+        <option value="premium">Premium</option>
+      </select>
+      <select class="filter-select">
+        <option>All time</option>
+        <option>This month</option>
+        <option>Last 30 days</option>
+        <option>Last 90 days</option>
+      </select>
+    </div>
+    <div class="chart-card">
+      <div class="table-wrap">
+        <table class="response-table" id="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Package</th>
+              <th>Format</th>
+              <th>Amount</th>
+              <th>Promo</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FULFILLMENT ══ -->
+  <div class="page" id="page-fulfillment">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Fulfillment</div>
+        <div class="topbar-sub">Physical gift box orders — shipping queue and status tracking</div>
+      </div>
+      <div class="topbar-right">
+        <button class="export-btn" onclick="exportFulfillmentCSV()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export packing list
+        </button>
+      </div>
+    </div>
+
+    <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-card amber">
+        <div class="kpi-label">🟡 Pending</div>
+        <div class="kpi-val" id="fk-pending">—</div>
+        <div class="kpi-sub">Awaiting packing</div>
+      </div>
+      <div class="kpi-card indigo">
+        <div class="kpi-label">🔵 Packed</div>
+        <div class="kpi-val" id="fk-packed">—</div>
+        <div class="kpi-sub">Ready to ship</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">🟢 Shipped</div>
+        <div class="kpi-val" id="fk-shipped">—</div>
+        <div class="kpi-sub">Last 90 days</div>
+      </div>
+      <div class="kpi-card rose">
+        <div class="kpi-label">⏱ Avg days to ship</div>
+        <div class="kpi-val" id="fk-avgdays">—</div>
+        <div class="kpi-sub">Order placed → shipped</div>
+      </div>
+    </div>
+
+    <!-- Fulfillment time chart -->
+    <div class="chart-grid" style="margin-bottom:1.25rem">
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Fulfillment time distribution</div><div class="chart-subtitle">Days from order to shipped — shipped orders only</div></div></div>
+        <div class="chart-body"><canvas id="chart-fulfill-dist"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Weekly shipments</div><div class="chart-subtitle">Boxes shipped per week · last 12 weeks</div></div></div>
+        <div class="chart-body"><canvas id="chart-weekly-ship"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <span class="filter-label">Show:</span>
+      <select class="filter-select" id="fulfill-filter" onchange="renderFulfillmentTable()">
+        <option value="pending">Pending only</option>
+        <option value="packed">Packed only</option>
+        <option value="all">All physical orders</option>
+        <option value="shipped">Shipped</option>
+      </select>
+      <select class="filter-select" id="fulfill-pkg-filter" onchange="renderFulfillmentTable()">
+        <option value="">All packages</option>
+        <option value="newlywed-box">Starting Out Box</option>
+        <option value="anniversary-box">Anniversary Box</option>
+        <option value="premium-box">Premium Box</option>
+      </select>
+      <span id="fulfill-count-label" style="font-size:.72rem;color:var(--muted);margin-left:auto;font-family:var(--mono);"></span>
+    </div>
+
+    <!-- Orders table -->
+    <div class="chart-card">
+      <div class="table-wrap">
+        <table class="response-table" id="fulfillment-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Order date</th>
+              <th>Package</th>
+              <th>Ship to</th>
+              <th>Address</th>
+              <th>Gift message</th>
+              <th>Recipient phone</th>
+              <th>Shipping</th>
+              <th>Status</th>
+              <th>Days elapsed</th>
+              <th>QR Card</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="fulfillment-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PACKAGE MIX ══ -->
+  <div class="page" id="page-packages">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Package Mix</div>
+        <div class="topbar-sub">How customers choose packages over time</div>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card orange"><div class="kpi-label">Assessment</div><div class="kpi-val">22%</div><div class="kpi-sub">$59 · 185 orders</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Starting Out</div><div class="kpi-val">31%</div><div class="kpi-sub">$79–$99 · 262 orders</div></div>
+      <div class="kpi-card indigo"><div class="kpi-label">Anniversary</div><div class="kpi-val">28%</div><div class="kpi-sub">$99–$119 · 237 orders</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Premium</div><div class="kpi-val">19%</div><div class="kpi-sub">$249–$289 · 163 orders</div></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Package split over time</div><div class="chart-subtitle">Stacked by month</div></div></div>
+        <div class="chart-body"><canvas id="chart-pkg-stacked"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Digital vs. physical box</div><div class="chart-subtitle">By package tier</div></div></div>
+        <div class="chart-body"><canvas id="chart-format"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-top:1.25rem">
+      <div class="chart-head"><div><div class="chart-title">Revenue contribution by package</div><div class="chart-subtitle">Last 12 months</div></div></div>
+      <div class="chart-body"><canvas id="chart-rev-pkg"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ DEMOGRAPHICS ══ -->
+  <div class="page" id="page-demographics">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Demographics</div>
+        <div class="topbar-sub">Anonymized — collected at signup, stored without PII linkage</div>
+      </div>
+    </div>
+    <div class="data-notice">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <p>All demographic data shown here was collected with the user's explicit opt-in consent during account creation. It is stored only under a random UUID, never with the user's name or email. Field-level suppression ("Prefer not to say") is honored — those records are excluded from these distributions.</p>
+    </div>
+    <div class="chart-grid three">
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Age range</div><div class="chart-subtitle">n=714 (84% response rate)</div></div></div>
+        <div class="chart-body"><canvas id="chart-age"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Gender</div><div class="chart-subtitle">n=698</div></div></div>
+        <div class="chart-body"><canvas id="chart-gender"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Relationship status</div><div class="chart-subtitle">n=731</div></div></div>
+        <div class="chart-body"><canvas id="chart-relstatus"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Length of relationship</div></div></div>
+        <div class="chart-body">
+          <div class="insight-list" id="demo-rellength-bars" style="margin-top:.5rem;"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Children together</div><div class="chart-subtitle">n=689</div></div></div>
+        <div class="chart-body"><canvas id="chart-children"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-top:1.25rem">
+      <div class="chart-head"><div><div class="chart-title">Package preference by age group</div><div class="chart-subtitle">Which packages each age cohort chooses</div></div></div>
+      <div class="chart-body"><canvas id="chart-age-pkg"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ RESPONSES ══ -->
+  <div class="page" id="page-responses">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Responses</div>
+        <div class="topbar-sub">Exercise completion and alignment patterns — no individual responses shown</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="setTab(this,'resp-comm')">Communication</div>
+      <div class="tab" onclick="setTab(this,'resp-exp')">Expectations</div>
+      <div class="tab" onclick="setTab(this,'resp-story')">Relationship Reflection</div>
+    </div>
+
+    <div id="resp-comm">
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-head"><div><div class="chart-title">Avg alignment score by dimension</div><div class="chart-subtitle">Communication exercise · 8 dimensions</div></div></div>
+          <div class="chart-body"><canvas id="chart-dim-scores"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><div><div class="chart-title">Communication type distribution</div><div class="chart-subtitle">Most common personality pairings</div></div></div>
+          <div class="chart-body">
+            <div class="insight-list" id="comm-type-bars" style="margin-top:.5rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resp-exp" style="display:none">
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-head"><div><div class="chart-title">Expectations alignment by category</div><div class="chart-subtitle">% of couples fully aligned per category</div></div></div>
+          <div class="chart-body"><canvas id="chart-exp-align"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><div><div class="chart-title">Most common expectation gaps</div><div class="chart-subtitle">Where couples most often differ</div></div></div>
+          <div class="chart-body">
+            <div class="insight-list" id="exp-gap-bars" style="margin-top:.5rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resp-story" style="display:none">
+      <div class="kpi-grid">
+        <div class="kpi-card indigo"><div class="kpi-label">Avg overall feel</div><div class="kpi-val">3.6<span style="font-size:1rem;color:var(--muted)">/4</span></div><div class="kpi-sub">Scale: needs work → better than ever</div></div>
+        <div class="kpi-card green"><div class="kpi-label">Connection aligned</div><div class="kpi-val">61%</div><div class="kpi-sub">Partners within 1 step of each other</div></div>
+        <div class="kpi-card amber"><div class="kpi-label">Fun gap flagged</div><div class="kpi-val">44%</div><div class="kpi-sub">≥2 step gap on fun/lightness</div></div>
+        <div class="kpi-card orange"><div class="kpi-label">Comm gap flagged</div><div class="kpi-val">38%</div><div class="kpi-sub">≥2 step gap on communication ease</div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-head"><div><div class="chart-title">Overall relationship feel distribution</div><div class="chart-subtitle">Combined avg score per couple · n=237</div></div></div>
+          <div class="chart-body"><canvas id="chart-story-feel"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-head"><div><div class="chart-title">Scale question gap rates</div><div class="chart-subtitle">% of couples with ≥2 step gap per question</div></div></div>
+          <div class="chart-body">
+            <div class="insight-list" id="story-gap-bars" style="margin-top:.5rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SATISFACTION ══ -->
+  <div class="page" id="page-satisfaction">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Satisfaction</div>
+        <div class="topbar-sub">Post-completion feedback and completion funnel</div>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card green"><div class="kpi-label">NPS score</div><div class="kpi-val">71</div><div class="kpi-sub">World-class benchmark: 50+</div><div class="kpi-trend up">↑ 4 pts this quarter</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Avg rating</div><div class="kpi-val">4.6<span style="font-size:1rem;color:var(--muted)">/5</span></div><div class="kpi-sub">n=512 ratings</div></div>
+      <div class="kpi-card indigo"><div class="kpi-label">Completion rate</div><div class="kpi-val">73%</div><div class="kpi-sub">Both partners finish all exercises</div></div>
+      <div class="kpi-card amber"><div class="kpi-label">Drop-off point</div><div class="kpi-val">Ex 02</div><div class="kpi-sub">Most incomplete at Exercise 2</div></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Completion funnel</div><div class="chart-subtitle">Ordered → Started → Both done → Results viewed</div></div></div>
+        <div class="chart-body"><canvas id="chart-funnel"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head"><div><div class="chart-title">Rating distribution</div><div class="chart-subtitle">Post-completion survey</div></div></div>
+        <div class="chart-body"><canvas id="chart-ratings"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-top:1.25rem">
+      <div class="chart-head"><div><div class="chart-title">NPS trend</div><div class="chart-subtitle">Monthly Net Promoter Score</div></div></div>
+      <div class="chart-body"><canvas id="chart-nps"></canvas></div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ── Date ──────────────────────────────────────────────
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+// ── Navigation ────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  // Lazy-init charts
+  if (!chartsInit[id]) { chartsInit[id]=true; initCharts(id); }
+}
+const chartsInit = {overview:false,orders:false,packages:false,demographics:false,responses:false,satisfaction:false,fulfillment:false};
+
+function setTab(el, targetId) {
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const parent = el.closest('.page');
+  parent.querySelectorAll('[id^="resp-"]').forEach(d=>d.style.display='none');
+  document.getElementById(targetId).style.display='block';
+}
+
+// ── Export orders CSV ─────────────────────────────────
+function exportCSV() {
+  const rows = [['OrderID','Date','Package','Format','Amount','Promo'],...ORDERS.map(o=>[o.id,o.dateStr,o.pkg,o.physical?'physical':'digital','$'+o.price,o.promo?'yes':'no'])];
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'unison-orders-anonymized.csv';
+  a.click();
+}
+Chart.defaults.color = '#6B7280';
+Chart.defaults.borderColor = '#2A2E3A';
+Chart.defaults.font.family = "'DM Sans',sans-serif";
+
+const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+const PKG_COLORS = ['#FF6B35','#FBBF24','#6C7FFF','#34D399'];
+const PKG_LABELS = ['Assessment','Starting Out','Anniversary','Premium'];
+
+// ── Simulated data ────────────────────────────────────
+const revenueData = [4200,5800,6100,7300,8800,9200,9800,10200,11400,13100,14200,15800];
+const pkgMix = [185,262,237,163];
+const sourceData = {labels:['Friend/family','Social media','Search','Received as gift','Therapist/counselor','Other'],data:[31,24,18,14,8,5]};
+const relLengths = [{l:'Less than 1 year',v:14},{l:'1–2 years',v:22},{l:'3–5 years',v:28},{l:'6–10 years',v:19},{l:'11–20 years',v:11},{l:'20+ years',v:6}];
+const ageData = {labels:['18–24','25–34','35–44','45–54','55+'],data:[8,42,29,14,7]};
+const genderData = {labels:['Woman','Man','Non-binary','Other'],data:[51,43,4,2]};
+const relStatusData = {labels:['Dating','Engaged','Married','Remarried','Partnership'],data:[18,26,44,7,5]};
+const childrenData = {labels:['None','1','2','3+','Expecting'],data:[38,19,28,10,5]};
+const dimScores = {labels:['Energy','Thinking','Expression','Conflict','Decision','Boundaries','Intimacy','Future'],data:[72,68,55,61,74,79,63,70]};
+const commTypes = [{l:'Balanced pair',v:24},{l:'Expressive + Reserved',v:19},{l:'Both expressive',v:17},{l:'Thinker + Feeler',v:14},{l:'Planner + Spontaneous',v:12},{l:'Other',v:14}];
+const expAlign = {labels:['Finances','Household','Social life','Career','Family','Intimacy','Faith/values','Recreation'],data:[48,72,65,56,61,43,78,69]};
+const expGaps = [{l:'Intimacy expectations',v:57},{l:'Financial approach',v:52},{l:'Career priorities',v:44},{l:'Extended family',v:38},{l:'Social time',v:35}];
+const storyGaps = [{l:'Fun & lightness',v:44},{l:'Communication ease',v:38},{l:'Day-to-day connection',v:31},{l:'Overall feel',v:22}];
+const funnelData = [847,731,618,541];
+const ratingsData = {labels:['5 ★','4 ★','3 ★','2 ★','1 ★'],data:[312,148,39,10,3]};
+const npsData = [52,55,58,60,63,61,65,67,68,67,70,71];
+
+// ── Bar renderer ──────────────────────────────────────
+function renderBars(containerId, items, color='#6C7FFF') {
+  const max = Math.max(...items.map(i=>i.v));
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  items.forEach(item => {
+    const pct = Math.round((item.v/max)*100);
+    el.innerHTML += `
+      <div class="insight-row">
+        <div class="insight-label">${item.l}</div>
+        <div class="insight-bar-wrap"><div class="insight-bar" style="width:${pct}%;background:${color}"></div></div>
+        <div class="insight-pct">${item.v}%</div>
+      </div>`;
+  });
+  // Animate
+  setTimeout(()=>el.querySelectorAll('.insight-bar').forEach(b=>{b.style.transition='width .8s cubic-bezier(.16,1,.3,1)'}),50);
+}
+
+// ── Token helpers ──────────────────────────────────────
+function genAdminToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  return Array.from({length:32}, ()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+function genAdminShortCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return 'SPK-'+Array.from({length:3},()=>chars[Math.floor(Math.random()*chars.length)]).join('')+'-'+Array.from({length:3},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+
+// ── Orders table ──────────────────────────────────────
+function generateOrders() {
+  const pkgs = ['core','newlywed','newlywed-box','anniversary','anniversary-box','premium','premium-box'];
+  const prices = {core:59,newlywed:79,'newlywed-box':99,anniversary:99,'anniversary-box':119,premium:249,'premium-box':289};
+  const firstNames = ['Emma','Liam','Olivia','Noah','Ava','Ethan','Sophia','Mason','Isabella','James','Mia','Logan','Charlotte','Lucas','Amelia','Oliver','Harper','Elijah','Evelyn','Aiden'];
+  const lastNames = ['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Martinez','Wilson','Anderson','Taylor','Thomas','Moore','Jackson'];
+  const streets = ['Maple Ave','Oak St','Cedar Ln','Pine Rd','Elm St','Birch Dr','Walnut Way','Cherry Ct','Willow Blvd','Spruce St'];
+  const cities = [['Austin','TX'],['Portland','OR'],['Denver','CO'],['Nashville','TN'],['Seattle','WA'],['Chicago','IL'],['Boston','MA'],['Atlanta','GA'],['Phoenix','AZ'],['Brooklyn','NY']];
+  const msgs = [
+    'Wishing you a lifetime of love and laughter. Can\'t wait to celebrate with you!',
+    'To the most beautiful couple — here\'s to your forever.',
+    'You two are perfect together. So excited for this next chapter!',
+    'With all my love on your wedding day.',
+    'Congratulations! May every year be better than the last.',
+    '', '', '' // some orders have no message
+  ];
+  const shipSpeeds = ['standard','standard','standard','express']; // 3:1 ratio
+
+  const rows = [];
+  for(let i=0;i<80;i++){
+    const pkg = pkgs[Math.floor(Math.random()*pkgs.length)];
+    const orderDate = new Date(Date.now() - Math.random()*90*86400000);
+    const physical = pkg.includes('-box');
+    const shipSpeed = shipSpeeds[Math.floor(Math.random()*shipSpeeds.length)];
+
+    // Fulfillment status + dates for physical orders
+    let fulfillStatus = null, shippedDate = null, daysToShip = null;
+    if (physical) {
+      const roll = Math.random();
+      if (roll < 0.25) {
+        fulfillStatus = 'pending';
+      } else if (roll < 0.38) {
+        fulfillStatus = 'packed';
+      } else {
+        fulfillStatus = 'shipped';
+        const shipDelay = shipSpeed === 'express' ? (1 + Math.random()*1.5) : (2 + Math.random()*4);
+        shippedDate = new Date(orderDate.getTime() + shipDelay*86400000);
+        daysToShip = Math.round(shipDelay*10)/10;
+      }
+    }
+
+    const city = cities[Math.floor(Math.random()*cities.length)];
+    const fn = firstNames[Math.floor(Math.random()*firstNames.length)];
+    const ln = lastNames[Math.floor(Math.random()*lastNames.length)];
+    const fn2 = firstNames[Math.floor(Math.random()*firstNames.length)];
+    const phones = ['2125559012','5125558234','3035557841','6155554893','2065553847'];
+    const tok = genAdminToken();
+
+    rows.push({
+      id: 'UN-' + String(Math.floor(Math.random()*90000)+10000),
+      date: orderDate,
+      dateStr: orderDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      pkg, price: prices[pkg],
+      promo: Math.random()<.15,
+      physical,
+      shipSpeed,
+      // Shipping details (physical only — not PII in backend, entered at checkout)
+      shipTo: physical ? `${fn} & ${fn2} ${ln}` : null,
+      address: physical ? `${Math.floor(Math.random()*9000)+100} ${streets[Math.floor(Math.random()*streets.length)]}, ${city[0]}, ${city[1]} ${Math.floor(Math.random()*90000)+10000}` : null,
+      giftMsg: physical ? msgs[Math.floor(Math.random()*msgs.length)] : null,
+      fulfillStatus,
+      shippedDate,
+      daysToShip,
+      // Account access
+      coupleNames: physical ? `${fn} & ${fn2}` : null,
+      recipientPhone: physical ? phones[Math.floor(Math.random()*phones.length)] : null,
+      token: tok,
+    });
+  }
+  return rows.sort((a,b)=>b.date-a.date);
+}
+const ORDERS = generateOrders();
+
+// ── Compute fulfillment stats ─────────────────────────
+function getFulfillmentStats() {
+  const physical = ORDERS.filter(o=>o.physical);
+  const pending = physical.filter(o=>o.fulfillStatus==='pending');
+  const packed = physical.filter(o=>o.fulfillStatus==='packed');
+  const shipped = physical.filter(o=>o.fulfillStatus==='shipped');
+  const avgDays = shipped.length ? (shipped.reduce((s,o)=>s+o.daysToShip,0)/shipped.length).toFixed(1) : '—';
+  return { pending, packed, shipped, avgDays, physical };
+}
+
+// ── Update dashboard KPIs ─────────────────────────────
+function updateDashboardFulfillmentKPIs() {
+  const stats = getFulfillmentStats();
+  const pendingEl = document.getElementById('dash-pending-count');
+  const avgEl = document.getElementById('dash-avg-ship');
+  const trendEl = document.getElementById('dash-ship-trend');
+  if (pendingEl) pendingEl.textContent = stats.pending.length + stats.packed.length;
+  if (avgEl) avgEl.textContent = stats.avgDays + 'd';
+  if (trendEl) { trendEl.textContent = '↓ target: 3d or less'; trendEl.className = Number(stats.avgDays) <= 3 ? 'kpi-trend up' : 'kpi-trend down'; }
+  const badge = document.getElementById('sb-fulfillment-badge');
+  if (badge) { const n = stats.pending.length; badge.textContent = n > 0 ? n : ''; badge.style.display = n > 0 ? 'inline' : 'none'; }
+}
+
+function renderOrdersTable(filter='') {
+  const tbody = document.getElementById('orders-tbody');
+  if (!tbody) return;
+  const pkgColors = {core:'#FF6B35',newlywed:'#FBBF24','newlywed-box':'#FBBF24',anniversary:'#6C7FFF','anniversary-box':'#6C7FFF',premium:'#34D399','premium-box':'#34D399'};
+  const pkgNames = {core:'Assessment',newlywed:'Starting Out','newlywed-box':'Starting Out',anniversary:'Anniversary','anniversary-box':'Anniversary',premium:'Premium','premium-box':'Premium'};
+  const filtered = filter ? ORDERS.filter(o=>o.pkg.startsWith(filter)) : ORDERS;
+  tbody.innerHTML = filtered.slice(0,50).map(o=>`
+    <tr>
+      <td><span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">${o.id}</span></td>
+      <td>${o.dateStr}</td>
+      <td><span class="pkg-tag" style="background:${pkgColors[o.pkg]}22;color:${pkgColors[o.pkg]}">${pkgNames[o.pkg]}</span></td>
+      <td><span class="pill ${o.physical?'amber':'indigo'}">${o.physical?'📦 Box':'💻 Digital'}</span></td>
+      <td style="font-family:var(--mono);color:var(--text)">$${o.price}</td>
+      <td>${o.promo?'<span class="pill green">10% off</span>':'—'}</td>
+      <td><span class="pill green">Complete</span></td>
+    </tr>`).join('');
+}
+function filterOrders(sel) { renderOrdersTable(sel.value); }
+
+// ── Fulfillment table ─────────────────────────────────
+function renderFulfillmentTable() {
+  const tbody = document.getElementById('fulfillment-tbody');
+  if (!tbody) return;
+  const statusFilter = document.getElementById('fulfill-filter')?.value || 'pending';
+  const pkgFilter = document.getElementById('fulfill-pkg-filter')?.value || '';
+
+  let rows = ORDERS.filter(o=>o.physical);
+  if (statusFilter !== 'all') rows = rows.filter(o=>o.fulfillStatus===statusFilter);
+  if (pkgFilter) rows = rows.filter(o=>o.pkg===pkgFilter);
+
+  const label = document.getElementById('fulfill-count-label');
+  if (label) label.textContent = `${rows.length} order${rows.length!==1?'s':''}`;
+
+  const pkgColors = {'newlywed-box':'#FBBF24','anniversary-box':'#6C7FFF','premium-box':'#34D399'};
+  const pkgNames = {'newlywed-box':'Starting Out Box','anniversary-box':'Anniversary Box','premium-box':'Premium Box'};
+  const statusPill = { pending:'<span class="pill amber">🟡 Pending</span>', packed:'<span class="pill indigo">🔵 Packed</span>', shipped:'<span class="pill green">🟢 Shipped</span>' };
+
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:2rem;font-size:.8rem;">No orders match this filter.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(o => {
+    const daysElapsed = o.fulfillStatus === 'shipped'
+      ? `<span style="color:var(--green);font-family:var(--mono)">${o.daysToShip}d</span>`
+      : `<span style="color:${o.fulfillStatus==='packed'?'#6C7FFF':'var(--amber)'};font-family:var(--mono)">${Math.floor((Date.now()-o.date)/86400000)}d open</span>`;
+
+    const action = o.fulfillStatus === 'pending'
+      ? `<button onclick="markStatus('${o.id}','packed')" style="background:rgba(108,127,255,.15);color:#8b9fff;border:1px solid rgba(108,127,255,.3);border-radius:7px;padding:.3rem .7rem;font-size:.65rem;font-weight:700;cursor:pointer;font-family:var(--mono);white-space:nowrap">Mark packed</button>`
+      : o.fulfillStatus === 'packed'
+      ? `<button onclick="markStatus('${o.id}','shipped')" style="background:rgba(52,211,153,.15);color:#34D399;border:1px solid rgba(52,211,153,.3);border-radius:7px;padding:.3rem .7rem;font-size:.65rem;font-weight:700;cursor:pointer;font-family:var(--mono);white-space:nowrap">Mark shipped</button>`
+      : `<span style="color:var(--dim);font-size:.68rem">✓ Done</span>`;
+
+    const msgDisplay = o.giftMsg
+      ? `<span title="${o.giftMsg}" style="font-size:.68rem;color:var(--muted);cursor:help;max-width:120px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">"${o.giftMsg}"</span>`
+      : `<span style="color:var(--dim);font-size:.68rem">—</span>`;
+
+    return `<tr id="row-${o.id}">
+      <td><span style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">${o.id}</span></td>
+      <td style="font-size:.75rem">${o.dateStr}</td>
+      <td><span class="pkg-tag" style="background:${pkgColors[o.pkg]}22;color:${pkgColors[o.pkg]};white-space:nowrap">${pkgNames[o.pkg]}</span></td>
+      <td style="font-size:.75rem;color:var(--text)">${o.shipTo}</td>
+      <td style="font-size:.68rem;color:var(--muted);max-width:180px">${o.address}</td>
+      <td>${msgDisplay}</td>
+      <td style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">${o.recipientPhone ? '(···) ···-'+o.recipientPhone.slice(-4) : '—'}</td>
+      <td><span class="pill ${o.shipSpeed==='express'?'rose':'indigo'}" style="white-space:nowrap">${o.shipSpeed==='express'?'⚡ Express':'Standard'}</span></td>
+      <td>${statusPill[o.fulfillStatus]}</td>
+      <td>${daysElapsed}</td>
+      <td><button onclick="printQRCard('${o.id}','${o.pkg}','${encodeURIComponent(o.coupleNames||o.shipTo||'Couple')}','${o.token||''}')" style="background:rgba(232,103,58,.12);color:#E8673A;border:1px solid rgba(232,103,58,.3);border-radius:7px;padding:.3rem .6rem;font-size:.62rem;font-weight:700;cursor:pointer;font-family:var(--mono);white-space:nowrap;display:flex;align-items:center;gap:.3rem;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h.01M14 18h.01M18 14h.01M18 18h.01"/></svg> QR card</button></td>
+      <td>${action}</td>
+    </tr>`;
+  }).join('');
+
+  // Update KPIs
+  const stats = getFulfillmentStats();
+  ['fk-pending','fk-packed','fk-shipped','fk-avgdays'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    if (el) el.textContent = [stats.pending.length, stats.packed.length, stats.shipped.length, stats.avgDays+'d'][i];
+  });
+}
+
+function markStatus(orderId, newStatus) {
+  const order = ORDERS.find(o=>o.id===orderId);
+  if (!order) return;
+  order.fulfillStatus = newStatus;
+  if (newStatus === 'shipped') {
+    const days = Math.round((Date.now()-order.date)/86400000*10)/10;
+    order.daysToShip = days;
+    order.shippedDate = new Date();
+  }
+  renderFulfillmentTable();
+  updateDashboardFulfillmentKPIs();
+}
+
+// ── Print QR card ─────────────────────────────────────
+function printQRCard(orderId, pkg, coupleNames, token) {
+  // Map admin pkg codes to qr-card.html pkg param
+  const pkgMap = {
+    'newlywed': 'newlywed', 'newlywed-box': 'newlywed',
+    'anniversary': 'anniversary', 'anniversary-box': 'anniversary',
+    'premium': 'premium', 'premium-box': 'premium',
+    'core': 'foundation',
+  };
+  const cardPkg = pkgMap[pkg] || 'foundation';
+  const url = `/qr-card?token=${encodeURIComponent(token)}&pkg=${cardPkg}&names=${coupleNames}&orderId=${encodeURIComponent(orderId)}`;
+  window.open(url, '_blank', 'width=520,height=740,toolbar=0,scrollbars=1');
+}
+
+// ── Fulfillment CSV export ────────────────────────────
+function exportFulfillmentCSV() {
+  const physical = ORDERS.filter(o=>o.physical);
+  const rows = [
+    ['OrderID','OrderDate','Package','ShipTo','Address','GiftMessage','RecipientPhone','ShipSpeed','Status','DaysToShip','Token'],
+    ...physical.map(o=>[o.id,o.dateStr,o.pkg,o.shipTo||'',`"${(o.address||'').replace(/"/g,"'")}"`,`"${(o.giftMsg||'').replace(/"/g,"'")}"`,o.recipientPhone?'(···)···-'+o.recipientPhone.slice(-4):'',o.shipSpeed,o.fulfillStatus,o.daysToShip||'',o.token||''])
+  ];
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'unison-fulfillment-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+// ── Chart initializers ────────────────────────────────
+function initCharts(page) {
+  if (page==='overview') {
+    new Chart(document.getElementById('chart-revenue'),{type:'line',data:{labels:MONTHS,datasets:[{label:'Revenue',data:revenueData,borderColor:'#FF6B35',backgroundColor:'rgba(255,107,53,.1)',tension:.4,fill:true,borderWidth:2.5,pointRadius:0,pointHoverRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'#2A2E3A'},ticks:{callback:v=>'$'+Math.round(v/1000)+'k'}},x:{grid:{display:false}}},animation:{duration:800}}});
+    new Chart(document.getElementById('chart-pkg-mix'),{type:'doughnut',data:{labels:PKG_LABELS,datasets:[{data:pkgMix,backgroundColor:PKG_COLORS,borderColor:['#1D2029'],borderWidth:3,hoverOffset:6}]},options:{plugins:{legend:{position:'bottom',labels:{padding:16,boxWidth:12}}},cutout:'65%'}});
+    renderBars('rellength-bars',relLengths,'#6C7FFF');
+    new Chart(document.getElementById('chart-source'),{type:'bar',data:{labels:sourceData.labels,datasets:[{data:sourceData.data,backgroundColor:'#34D399',borderRadius:6}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2A2E3A'},ticks:{callback:v=>v+'%'}},y:{grid:{display:false}}}}});
+  }
+  else if (page==='orders') { renderOrdersTable(); }
+  else if (page==='fulfillment') {
+    renderFulfillmentTable();
+    const stats = getFulfillmentStats();
+    // Fulfillment time distribution
+    const distBuckets = [0,0,0,0,0,0]; // 0-1, 1-2, 2-3, 3-4, 4-5, 5+
+    stats.shipped.forEach(o=>{ const d=o.daysToShip; const i=Math.min(Math.floor(d),5); distBuckets[i]++; });
+    new Chart(document.getElementById('chart-fulfill-dist'),{type:'bar',data:{labels:['0–1 days','1–2 days','2–3 days','3–4 days','4–5 days','5+ days'],datasets:[{data:distBuckets,backgroundColor:distBuckets.map((_,i)=>i<=2?'#34D399':i<=3?'#FBBF24':'#F87171'),borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'},ticks:{precision:0}}}}});
+    // Weekly shipments
+    const weeks = Array(12).fill(0);
+    stats.shipped.forEach(o=>{ const w=Math.floor((Date.now()-o.date)/604800000); if(w<12) weeks[11-w]++; });
+    const weekLabels = Array.from({length:12},(_,i)=>{ const d=new Date(Date.now()-(11-i)*7*86400000); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
+    new Chart(document.getElementById('chart-weekly-ship'),{type:'bar',data:{labels:weekLabels,datasets:[{label:'Shipped',data:weeks,backgroundColor:'#6C7FFF',borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{maxRotation:45}},y:{grid:{color:'#2A2E3A'},ticks:{precision:0}}}}});
+  }
+  else if (page==='packages') {
+    const pkgStacked = {labels:MONTHS,datasets:[
+      {label:'Assessment',data:[18,21,19,22,24,20,23,26,21,19,22,24],backgroundColor:'#FF6B35'},
+      {label:'Starting Out',data:[25,28,32,29,35,38,41,39,43,45,47,50],backgroundColor:'#FBBF24'},
+      {label:'Anniversary',data:[22,25,27,31,30,33,36,34,38,40,42,44],backgroundColor:'#6C7FFF'},
+      {label:'Premium',data:[12,14,15,17,18,20,21,23,22,25,27,30],backgroundColor:'#34D399'},
+    ]};
+    new Chart(document.getElementById('chart-pkg-stacked'),{type:'bar',data:pkgStacked,options:{plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#2A2E3A'}}}}});
+    new Chart(document.getElementById('chart-format'),{type:'bar',data:{labels:PKG_LABELS,datasets:[{label:'Digital',data:[185,168,162,143],backgroundColor:'#6C7FFF',borderRadius:4},{label:'Physical box',data:[0,94,75,20],backgroundColor:'#FBBF24',borderRadius:4}]},options:{plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'}}}}});
+    new Chart(document.getElementById('chart-rev-pkg'),{type:'bar',data:{labels:MONTHS,datasets:[
+      {label:'Assessment',data:[1062,1239,1121,1298,1416,1180,1357,1534,1239,1121,1298,1416],backgroundColor:'#FF6B3544',borderColor:'#FF6B35',borderWidth:1.5,borderRadius:4},
+      {label:'Starting Out',data:[1975,2212,2528,2291,2765,3002,3239,3080,3397,3555,3713,3950],backgroundColor:'#FBBF2444',borderColor:'#FBBF24',borderWidth:1.5,borderRadius:4},
+      {label:'Anniversary',data:[2178,2475,2673,3069,2970,3267,3564,3366,3762,3960,4158,4356],backgroundColor:'#6C7FFF44',borderColor:'#6C7FFF',borderWidth:1.5,borderRadius:4},
+      {label:'Premium',data:[2988,3486,3735,4233,4482,4980,5229,5727,5478,6225,6723,7470],backgroundColor:'#34D39944',borderColor:'#34D399',borderWidth:1.5,borderRadius:4},
+    ]},options:{plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#2A2E3A'},ticks:{callback:v=>'$'+Math.round(v/1000)+'k'}}}}});
+  }
+  else if (page==='demographics') {
+    new Chart(document.getElementById('chart-age'),{type:'bar',data:{labels:ageData.labels,datasets:[{data:ageData.data,backgroundColor:'#FF6B35',borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'},ticks:{callback:v=>v+'%'}}}}});
+    new Chart(document.getElementById('chart-gender'),{type:'doughnut',data:{labels:genderData.labels,datasets:[{data:genderData.data,backgroundColor:['#F87171','#6C7FFF','#34D399','#FBBF24'],borderColor:'#1D2029',borderWidth:3}]},options:{plugins:{legend:{position:'bottom',labels:{padding:14,boxWidth:11}}},cutout:'60%'}});
+    new Chart(document.getElementById('chart-relstatus'),{type:'doughnut',data:{labels:relStatusData.labels,datasets:[{data:relStatusData.data,backgroundColor:['#6C7FFF','#FF6B35','#34D399','#FBBF24','#F87171'],borderColor:'#1D2029',borderWidth:3}]},options:{plugins:{legend:{position:'bottom',labels:{padding:14,boxWidth:11}}},cutout:'60%'}});
+    renderBars('demo-rellength-bars',relLengths,'#6C7FFF');
+    new Chart(document.getElementById('chart-children'),{type:'bar',data:{labels:childrenData.labels,datasets:[{data:childrenData.data,backgroundColor:'#34D399',borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'},ticks:{callback:v=>v+'%'}}}}});
+    new Chart(document.getElementById('chart-age-pkg'),{type:'bar',data:{labels:ageData.labels,datasets:[
+      {label:'Assessment',data:[35,18,20,24,29],backgroundColor:'#FF6B35',borderRadius:3},
+      {label:'Starting Out',data:[41,38,28,22,18],backgroundColor:'#FBBF24',borderRadius:3},
+      {label:'Anniversary',data:[16,27,31,34,28],backgroundColor:'#6C7FFF',borderRadius:3},
+      {label:'Premium',data:[8,17,21,20,25],backgroundColor:'#34D399',borderRadius:3},
+    ]},options:{plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'},ticks:{callback:v=>v+'%'}}}}});
+  }
+  else if (page==='responses') {
+    new Chart(document.getElementById('chart-dim-scores'),{type:'radar',data:{labels:dimScores.labels,datasets:[{label:'Avg alignment',data:dimScores.data,borderColor:'#6C7FFF',backgroundColor:'rgba(108,127,255,.15)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#6C7FFF'}]},options:{scales:{r:{grid:{color:'#2A2E3A'},angleLines:{color:'#2A2E3A'},ticks:{display:false},min:0,max:100}},plugins:{legend:{display:false}}}});
+    renderBars('comm-type-bars',commTypes,'#FF6B35');
+    new Chart(document.getElementById('chart-exp-align'),{type:'bar',data:{labels:expAlign.labels,datasets:[{label:'% aligned',data:expAlign.data,backgroundColor:expAlign.data.map(v=>v<50?'#F87171':v<65?'#FBBF24':'#34D399'),borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'},ticks:{callback:v=>v+'%'},min:0,max:100}}}});
+    renderBars('exp-gap-bars',expGaps,'#F87171');
+    new Chart(document.getElementById('chart-story-feel'),{type:'bar',data:{labels:['Needs work (0)','Rough patch (1)','Solid (2)','Really good (3)','Better than ever (4)'],datasets:[{data:[12,31,78,89,27],backgroundColor:['#F87171','#FBBF24','#6C7FFF','#34D399','#10b981'],borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'}}}}});
+    renderBars('story-gap-bars',storyGaps,'#FBBF24');
+  }
+  else if (page==='satisfaction') {
+    new Chart(document.getElementById('chart-funnel'),{type:'bar',data:{labels:['Ordered','Started exercises','Both completed','Results viewed'],datasets:[{data:funnelData,backgroundColor:['#FF6B35','#FBBF24','#6C7FFF','#34D399'],borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'}}}}});
+    new Chart(document.getElementById('chart-ratings'),{type:'bar',data:{labels:ratingsData.labels,datasets:[{data:ratingsData.data,backgroundColor:ratingsData.data.map((_,i)=>['#34D399','#6C7FFF','#FBBF24','#F87171','#EF4444'][i]),borderRadius:6}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#2A2E3A'}}}}});
+    new Chart(document.getElementById('chart-nps'),{type:'line',data:{labels:MONTHS,datasets:[{label:'NPS',data:npsData,borderColor:'#34D399',backgroundColor:'rgba(52,211,153,.1)',tension:.4,fill:true,borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#34D399'},{label:'Benchmark (50)',data:Array(12).fill(50),borderColor:'#4B5563',borderDash:[5,5],borderWidth:1.5,pointRadius:0}]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{grid:{color:'#2A2E3A'},min:40,max:80},x:{grid:{display:false}}}}});
+  }
+}
+
+// Init overview on load
+window.addEventListener('load',()=>{chartsInit.overview=true;initCharts('overview');updateDashboardFulfillmentKPIs();});
+</script>
+</body>
+</html>

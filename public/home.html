@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attune — Understand each other deeply. And how to grow together.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --cream:#FFFDF9;--warm:#FBF8F3;--stone:#E8DDD0;
+    --clay:#C17F47;--ink:#0E0B07;--text:#1E1610;--muted:#8C7A68;
+    --orange:#E8673A;--indigo:#1B5FE8;
+    --hfont:'Playfair Display',Georgia,serif;
+    --bfont:'DM Sans',sans-serif;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--cream);color:var(--text);font-family:var(--bfont);-webkit-font-smoothing:antialiased}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;background:rgba(255,253,249,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--stone);display:flex;align-items:center;padding:0 2.5rem;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:.65rem;text-decoration:none}
+  .logo-mark{display:flex;align-items:center;flex-shrink:0}
+  .logo-text{font-family:var(--hfont);font-size:1.15rem;font-weight:700;color:var(--ink)}
+  .nav-center{display:flex;gap:2.5rem;list-style:none;position:absolute;left:50%;transform:translateX(-50%);align-items:center}.nav-center li{display:flex;align-items:center}
+  .nav-center a{text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;transition:color .15s}
+  .nav-center a:hover{color:var(--ink)}
+  /* LEARN DROPDOWN */
+  .nav-dropdown{position:relative}
+  .nav-dropdown-toggle{text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;transition:color .15s;cursor:pointer;display:flex;align-items:center;gap:.28rem;background:none;border:none;padding:0;font-family:var(--bfont)}
+  .nav-dropdown-toggle:hover,.nav-dropdown-toggle.active{color:var(--ink)}
+  .nav-dropdown-toggle svg{transition:transform .2s}
+  .nav-dropdown:hover .nav-dropdown-toggle svg{transform:rotate(180deg)}
+  .nav-dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background:rgba(255,253,249,.98);backdrop-filter:blur(16px);border:1.5px solid var(--stone);border-radius:14px;padding:.6rem;min-width:190px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s,visibility .15s;box-shadow:0 12px 40px rgba(14,11,7,.12);z-index:200;margin-top:0}
+  .nav-dropdown:hover .nav-dropdown-menu{opacity:1;visibility:visible;pointer-events:auto}
+  .nav-dropdown-menu::before{content:'';position:absolute;top:-16px;left:-10px;right:-10px;height:16px;background:transparent;}
+  .nav-dropdown-menu a{display:block;padding:.55rem .8rem;font-size:.78rem;color:var(--muted);text-decoration:none;border-radius:8px;transition:all .15s;font-weight:500}
+  .nav-dropdown-menu a:hover{background:var(--warm);color:var(--ink)}
+  .nav-dropdown-menu .dd-divider{height:1px;background:var(--stone);margin:.35rem .5rem}
+  .nav-center a.active{color:var(--ink);font-weight:600}
+  .nav-right{display:flex;align-items:center;gap:1.25rem}
+  .nav-signin{font-size:.8rem;font-weight:500;color:var(--muted);text-decoration:none;transition:color .15s}
+  .nav-signin:hover{color:var(--ink)}
+  .btn-nav{background:var(--ink);color:white;padding:.5rem 1.2rem;border-radius:10px;font-size:.78rem;font-weight:600;text-decoration:none;display:inline-block;transition:opacity .15s}
+  .btn-nav:hover{opacity:.82}
+
+  /* HERO */
+  .hero{padding-top:58px;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;max-width:1120px;margin:0 auto;padding-left:2.5rem;padding-right:2.5rem;gap:5rem}
+  .hero-left{padding:5rem 0}
+  .eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--clay);font-weight:700;margin-bottom:1.5rem}
+  .eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--orange)}
+  h1{font-family:var(--hfont);font-size:clamp(2.6rem,4.2vw,3.7rem);font-weight:700;line-height:1.06;color:var(--ink);margin-bottom:1.6rem;letter-spacing:-.02em}
+  h1 em{font-style:italic;color:var(--orange)}
+  .hero-sub{font-size:1.02rem;color:var(--muted);line-height:1.78;max-width:430px;margin-bottom:1.75rem;font-weight:300}
+  /* for-you / gift toggle */
+  .use-toggle{display:flex;gap:.75rem;margin-bottom:2.5rem}
+  .use-btn{padding:.55rem 1.1rem;border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--stone);background:white;color:var(--muted);font-family:var(--bfont);transition:all .15s;display:flex;align-items:center;gap:.45rem}
+  .use-btn.active{background:var(--ink);color:white;border-color:var(--ink)}
+  .use-btn svg{width:14px;height:14px;flex-shrink:0}
+  .use-desc{font-size:.82rem;color:var(--muted);line-height:1.65;margin-bottom:2.25rem;min-height:2.5rem;transition:opacity .2s}
+  .hero-actions{display:flex;align-items:center;gap:1.25rem}
+  .btn-primary{background:linear-gradient(135deg,var(--orange),#d45a2e);color:white;border:none;padding:.9rem 2.1rem;border-radius:12px;font-size:.82rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;font-family:var(--bfont);text-decoration:none;display:inline-block;box-shadow:0 6px 24px rgba(232,103,58,.38);transition:transform .18s,box-shadow .18s}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(232,103,58,.45)}
+  .btn-ghost{font-size:.82rem;font-weight:500;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;transition:color .15s}
+  .btn-ghost:hover{color:var(--ink)}
+  .hero-proof{margin-top:2rem;display:flex;align-items:center;gap:.75rem;font-size:.75rem;color:var(--muted)}
+  .proof-dot{width:7px;height:7px;border-radius:50%;background:#3dba7a;flex-shrink:0}
+
+  /* HERO CARD */
+  .hero-card{background:linear-gradient(150deg,#131130,#1d1a4e 50%,#201d52);border-radius:22px;padding:2rem;color:white;position:relative;overflow:hidden;box-shadow:0 32px 80px rgba(14,11,7,.22),0 0 0 1px rgba(255,255,255,.06)}
+  .hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),var(--indigo))}
+  .hc-label{font-size:.56rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(232,103,58,.65);margin-bottom:.3rem}
+  .hc-names{font-family:var(--hfont);font-size:1.85rem;font-weight:700;margin-bottom:.6rem;letter-spacing:-.02em}
+  .hc-badge{display:inline-block;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);padding:.28rem .75rem;border-radius:999px;font-size:.68rem;font-weight:600;margin-bottom:.9rem}
+  .hc-stats{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.1rem}
+  .hc-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:.22rem .65rem;border-radius:999px;font-size:.62rem;color:rgba(255,255,255,.65)}
+  .hc-profiles{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.25rem}
+  .hc-profile{border-radius:10px;padding:.75rem .9rem}
+  .hc-profile.s{background:rgba(232,103,58,.16);border:1px solid rgba(232,103,58,.28)}
+  .hc-profile.j{background:rgba(91,109,248,.16);border:1px solid rgba(91,109,248,.28)}
+  .hc-pname{font-size:.53rem;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin-bottom:.22rem}
+  .hc-pdesc{font-size:.76rem;font-weight:500;line-height:1.3}
+  /* dimension tiles with explore arrows */
+  .hc-dims{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .hc-dim{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:.6rem .75rem;display:flex;justify-content:space-between;align-items:center;transition:background .15s}
+  .hc-dim:hover{background:rgba(255,255,255,.11)}
+  .hc-dim-left{display:flex;align-items:center;gap:.5rem}
+  .hc-dim-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .hc-dim-info{}
+  .hc-dim-name{font-size:.62rem;font-weight:600;margin-bottom:.1rem}
+  .hc-dim-val{font-size:.55rem;color:rgba(255,255,255,.4)}
+  .hc-dim-arrow{color:rgba(255,255,255,.28);font-size:.7rem;flex-shrink:0}
+
+  /* SECTIONS */
+  section{padding:6rem 2.5rem}
+  .si{max-width:1120px;margin:0 auto}
+  .s-eye{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--clay);font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.5rem}
+  .s-eye::before{content:'';width:20px;height:1.5px;background:var(--clay)}
+  .s-title{font-family:var(--hfont);font-size:clamp(1.9rem,3.2vw,2.7rem);font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:1.1rem;letter-spacing:-.02em}
+  .s-title em{font-style:italic;color:var(--orange)}
+  .s-sub{font-size:.95rem;color:var(--muted);line-height:1.78;font-weight:300;max-width:540px}
+
+  /* WHY IT MATTERS — replaces "how it works" */
+  .bg-warm{background:var(--warm);border-top:1px solid var(--stone);border-bottom:1px solid var(--stone)}
+  .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3.5rem}
+  .why-card{background:white;border:1px solid var(--stone);border-radius:18px;padding:1.85rem;transition:box-shadow .22s,transform .22s;position:relative}
+  .why-card:hover{box-shadow:0 10px 40px rgba(14,11,7,.09);transform:translateY(-2px)}
+  .why-icon-wrap{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem}
+  .why-title{font-size:.98rem;font-weight:700;color:var(--ink);margin-bottom:.55rem}
+  .why-desc{font-size:.84rem;color:var(--muted);line-height:1.7}
+
+  /* WHAT YOU LEARN */
+  .what-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:6rem;align-items:center;margin-top:3.5rem}
+  .what-list{display:flex;flex-direction:column;gap:1.5rem}
+  .what-item{display:flex;gap:1.1rem;align-items:flex-start}
+  .what-icon-wrap{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .what-item h4{font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:.25rem}
+  .what-item p{font-size:.82rem;color:var(--muted);line-height:1.65}
+
+  /* results mock */
+  .rm{background:var(--warm);border:1px solid var(--stone);border-radius:20px;padding:1.5rem}
+  .rm-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+  .rm-lbl{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--clay);font-weight:700}
+  .rm-tabs{display:flex;gap:.4rem}
+  .rm-tab{padding:.28rem .68rem;border-radius:999px;font-size:.6rem;font-weight:500;border:1.5px solid var(--stone);color:var(--muted)}
+  .rm-tab.a{background:var(--ink);color:white;border-color:var(--ink)}
+  .rm-hero{background:linear-gradient(150deg,#131130,#1d1a4e);border-radius:14px;padding:1.25rem;margin-bottom:1rem;color:white}
+  .rm-hlbl{font-size:.52rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(232,103,58,.65);margin-bottom:.25rem}
+  .rm-hname{font-family:var(--hfont);font-size:1.35rem;font-weight:700;margin-bottom:.45rem}
+  .rm-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+  .rm-chip{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);padding:.18rem .55rem;border-radius:999px;font-size:.59rem;color:rgba(255,255,255,.6)}
+  /* dimension tiles in mock — with arrows */
+  .rm-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+  .rm-dim{background:white;border-radius:9px;padding:.7rem .8rem;border:1px solid var(--stone);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+  .rm-dim:hover{border-color:var(--clay);box-shadow:0 2px 8px rgba(14,11,7,.07)}
+  .rm-dim-left{}
+  .rm-dlbl{font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem}
+  .rm-dval{font-size:.7rem;color:var(--ink);font-weight:500;display:flex;align-items:center;gap:.35rem}
+  .rm-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .rm-arrow{color:var(--clay);font-size:.85rem;flex-shrink:0;font-weight:600}
+
+  /* WHO IT'S FOR */
+  .for-icon-wrap{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem}
+
+  /* NOT FOR CRISIS — philosophy bar */
+  .philosophy-bar{border-top:1px solid var(--stone);border-bottom:1px solid var(--stone);padding:3rem 2.5rem;background:white}
+  .pb-inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+  .pb-eyebrow{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--clay);font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+  .pb-eyebrow::before{content:'';width:20px;height:1.5px;background:var(--clay)}
+  .pb-title{font-family:var(--hfont);font-size:1.6rem;font-weight:700;line-height:1.2;color:var(--ink);letter-spacing:-.02em}
+  .pb-title em{font-style:italic;color:var(--orange)}
+  .pb-body{font-size:.88rem;color:var(--muted);line-height:1.78}
+
+  /* DARK PHILOSOPHY */
+  .bg-dark{background:linear-gradient(150deg,#0f0c29,#181545)}
+  .bg-dark .s-eye{color:rgba(232,103,58,.65)}
+  .bg-dark .s-eye::before{background:rgba(232,103,58,.4)}
+  .bg-dark .s-title{color:white}
+  .bg-dark .s-sub{color:rgba(255,255,255,.42)}
+  .phil-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+  .phil-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:1.85rem}
+  .phil-q{font-family:var(--hfont);font-size:1.05rem;font-style:italic;line-height:1.58;color:rgba(255,255,255,.86);margin-bottom:1.1rem}
+  .phil-src{font-size:.7rem;color:rgba(255,255,255,.3)}
+
+  /* SOCIAL PROOF */
+  .proof-section{padding:5rem 2.5rem;background:var(--warm)}
+  .proof-inner{max-width:1120px;margin:0 auto}
+  .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+  .proof-card{background:white;border:1.5px solid var(--stone);border-radius:18px;padding:1.85rem;position:relative}
+  .proof-stars{color:#F59E0B;font-size:.75rem;margin-bottom:.85rem;letter-spacing:.1em}
+  .proof-text{font-family:var(--hfont);font-size:.97rem;font-style:italic;line-height:1.62;color:var(--ink);margin-bottom:1.1rem}
+  .proof-person{display:flex;align-items:center;gap:.65rem}
+  .proof-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:white;flex-shrink:0}
+  .proof-name{font-size:.75rem;font-weight:700;color:var(--ink)}
+  .proof-detail{font-size:.7rem;color:var(--muted)}
+  .proof-stat-row{display:flex;gap:2.5rem;justify-content:center;margin-top:3.5rem;flex-wrap:wrap}
+  .proof-stat{text-align:center}
+  .proof-stat-num{font-family:var(--hfont);font-size:2.1rem;font-weight:700;color:var(--ink);line-height:1}
+  .proof-stat-label{font-size:.72rem;color:var(--muted);margin-top:.3rem;letter-spacing:.04em}
+
+  /* CTA */
+  .cta-wrap{text-align:center;padding:8rem 2.5rem}
+  .cta-inner{max-width:600px;margin:0 auto}
+  .cta-title{font-family:var(--hfont);font-size:clamp(2rem,3.8vw,3rem);font-weight:700;line-height:1.08;color:var(--ink);margin-bottom:1.25rem;letter-spacing:-.02em}
+  .cta-title em{font-style:italic;color:var(--orange)}
+  .cta-sub{font-size:.96rem;color:var(--muted);line-height:1.78;margin-bottom:2.75rem;font-weight:300}
+  .cta-actions{display:flex;justify-content:center;gap:1.25rem;flex-wrap:wrap;align-items:center}
+
+  /* FOOTER */
+  .footer-outer{border-top:1px solid var(--stone)}
+  footer{max-width:1120px;margin:0 auto;padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+  .footer-links{display:flex;gap:1.75rem;list-style:none}
+  .footer-links a{font-size:.78rem;color:var(--muted);text-decoration:none;transition:color .15s}
+  .footer-links a:hover{color:var(--ink)}
+  .footer-copy{font-size:.72rem;color:var(--muted)}
+
+  /* ══ SITE FOOTER ══ */
+  .site-footer{background:var(--ink);color:rgba(255,255,255,.55);padding:4rem 0 2rem;width:100%;margin-left:0;margin-right:0;max-width:none;display:block}
+  .sf-inner{max-width:1120px;margin:0 auto;padding:0 2.5rem 3rem;display:grid;grid-template-columns:1fr 2fr;gap:4rem;border-bottom:1px solid rgba(255,255,255,.1)}
+  .sf-brand .logo-text{color:white}
+  .sf-tagline{font-size:.82rem;color:rgba(255,255,255,.38);line-height:1.7;margin-top:.85rem;max-width:200px}
+  .sf-links{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+  .sf-col{display:flex;flex-direction:column;gap:.5rem}
+  .sf-col-title{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:700;margin-bottom:.4rem}
+  .sf-col a{font-size:.82rem;color:rgba(255,255,255,.55);text-decoration:none;transition:color .15s}
+  .sf-col a:hover{color:white}
+  .sf-bottom{max-width:1120px;margin:0 auto;padding:1.75rem 2.5rem 0;display:flex;flex-direction:column;align-items:flex-start;gap:.4rem}
+  .sf-copy,.sf-email{font-size:.72rem;color:rgba(255,255,255,.28)}
+  @media(max-width:768px){.sf-inner{grid-template-columns:1fr;gap:2.5rem}.sf-links{grid-template-columns:repeat(2,1fr)}.sf-bottom{flex-direction:column;align-items:flex-start}}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+  .fu1{animation:fadeUp .65s ease both}
+  .fu2{animation:fadeUp .65s .1s ease both}
+  .fu3{animation:fadeUp .65s .2s ease both}
+  .fu4{animation:fadeUp .65s .3s ease both}
+
+  /* HAMBURGER NAV */
+  .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px}
+  .hamburger span{display:block;width:20px;height:2px;background:var(--ink);border-radius:2px;transition:all .25s}
+  .mobile-menu{display:none;position:fixed;top:58px;left:0;right:0;background:rgba(255,253,249,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--stone);padding:1.25rem 2rem 1.5rem;z-index:99;flex-direction:column;gap:.2rem}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a{font-size:.9rem;font-weight:500;color:var(--muted);text-decoration:none;padding:.6rem 0;border-bottom:1px solid var(--stone);transition:color .15s}
+  .mobile-menu a:last-child{border-bottom:none}
+  .mobile-menu a:hover{color:var(--ink)}
+  .mobile-menu .mm-cta{color:var(--orange);font-weight:700}
+  @media(max-width:900px){
+    .hero{grid-template-columns:1fr}
+    .hero-right{display:none}
+    .why-grid,.for-grid,.phil-grid,.proof-grid{grid-template-columns:1fr}
+    .what-layout{grid-template-columns:1fr;gap:3rem}
+    .pb-inner{grid-template-columns:1fr}
+    .nav-center{display:none}
+    .nav-right .btn-nav,.nav-signin{display:none}
+    .hamburger{display:flex}
+  }
+  .mm-section{display:flex;flex-direction:column;border-bottom:1px solid var(--stone);padding-bottom:.25rem;margin-bottom:.25rem}
+  .mm-label{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:.55rem 0 .2rem .75rem}
+  .mm-sub{padding-left:.75rem !important;font-size:.85rem !important;border-bottom:none !important}
+  .mm-sub:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/home" class="logo">
+    <svg width="46" height="33" viewBox="0 0 103 76" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spark_logo_0_2" x1="0" y1="0" x2="103" y2="76" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E8673A"/><stop offset="100%" stop-color="#1B5FE8"/></linearGradient></defs><path d="M14,4 L44,4 A9,9 0 0,1 53,13 L53,42 A9,9 0 0,1 44,51 L20,51 L6,61 L11,51 A6,6 0 0,1 5,45 L5,13 A9,9 0 0,1 14,4 Z" fill="url(#spark_logo_0_2)"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="white" opacity="0.93" transform="translate(13.16,11.3) scale(0.72)"/><path d="M89,14 L59,14 A9,9 0 0,0 50,23 L50,52 A9,9 0 0,0 59,61 L83,61 L97,71 L92,61 A6,6 0 0,0 98,55 L98,23 A9,9 0 0,0 89,14 Z" fill="none" stroke="url(#spark_logo_0_2)" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="url(#spark_logo_0_2)" transform="translate(58.16,21.3) scale(0.72)"/></svg>
+    <span class="logo-text">Attune</span>
+  </a>
+  <ul class="nav-center">
+    <li><a href="/home" class="active">Home</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Learn <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dropdown-menu">
+        <a href="/purpose">Our Purpose</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/whats-included">What's included</a>
+        <div class="dd-divider"></div>
+        <a href="/resources">Resources</a>
+        <a href="/faq">FAQs</a>
+        <a href="/reviews">Reviews</a>
+      </div>
+    </li>
+    <li><a href="/offerings">Gifts &amp; Packages</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="/portal" class="nav-signin">Sign in</a>
+    <a href="/portal" class="btn-nav">Get started</a>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="/home">Home</a>
+  <div class="mm-section">
+    <span class="mm-label">Learn</span>
+    <a href="/purpose" class="mm-sub">Our Purpose</a>
+    <a href="/how-it-works" class="mm-sub">How it works</a>
+    <a href="/whats-included" class="mm-sub">What's included</a>
+    <a href="/resources" class="mm-sub">Resources</a>
+    <a href="/faq" class="mm-sub">FAQs</a>
+    <a href="/reviews" class="mm-sub">Reviews</a>
+  </div>
+  <a href="/offerings">Gifts &amp; Packages</a>
+  <a href="/portal">Sign in</a>
+  <a href="/portal" class="mm-cta">Get started →</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <p class="eyebrow fu1"><span class="eyebrow-dot"></span>A new kind of relationship tool</p>
+    <h1 class="fu2">Understand each other deeply.<br><em>And how to grow together.</em></h1>
+    <p class="hero-sub fu3">Attune surfaces how you each actually think, what you each expect, and where you naturally complement each other — in detail that can take years to find on your own.</p>
+
+    <!-- FOR YOU / GIVE AS GIFT toggle -->
+    <div class="use-toggle fu3">
+      <button class="use-btn active" id="btn-foryou" onclick="setUse('foryou')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5"/></svg>
+        Do it with your partner
+      </button>
+      <button class="use-btn" id="btn-gift" onclick="setUse('gift')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="12" height="8" rx="1"/><path d="M5 7V5.5a3 3 0 0 1 6 0V7"/><line x1="8" y1="7" x2="8" y2="15"/><path d="M2 10h12"/></svg>
+        Give it as a gift
+      </button>
+    </div>
+    <p class="use-desc fu3" id="use-desc">Couples complete their exercises independently, your answers combine into a shared understanding of how you each think, what you each expect, and where you naturally complement each other.</p>
+
+    <div class="hero-actions fu4">
+      <a href="/portal" class="btn-primary" id="hero-cta">Start your exercises →</a>
+      <a href="#why" class="btn-ghost">See how it works ↓</a>
+    </div>
+  </div>
+
+  <div class="hero-right fu3">
+    <div class="hero-card" style="background:linear-gradient(145deg,#0f0c29,#1d1a4e,#24243e);border:none;padding:0;overflow:hidden;">
+      <!-- Results overview header -->
+      <div style="padding:1rem 1.15rem .75rem;border-bottom:1px solid rgba(255,255,255,.07);">
+        <div style="font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(232,103,58,.65);margin-bottom:.3rem;">Results Overview</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-family:'Playfair Display',Georgia,serif;font-size:1.1rem;font-weight:700;color:white;line-height:1.1;">Sarah &amp; James</div>
+          <span style="background:linear-gradient(135deg,rgba(232,103,58,.25),rgba(27,95,232,.25));border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:.2rem .65rem;font-size:.6rem;color:rgba(255,255,255,.85);font-weight:700;">Richly Different</span>
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.55rem;">
+          <span style="font-size:.58rem;background:rgba(255,255,255,.07);border-radius:4px;padding:.15rem .45rem;color:rgba(255,255,255,.5);">8 dimensions</span>
+          <span style="font-size:.58rem;background:rgba(255,255,255,.07);border-radius:4px;padding:.15rem .45rem;color:rgba(255,255,255,.5);">43 topics</span>
+          <span style="font-size:.58rem;background:rgba(16,185,129,.15);border-radius:4px;padding:.15rem .45rem;color:#34d399;">81% aligned</span>
+        </div>
+      </div>
+      <!-- Built together section -->
+      <div style="padding:.75rem 1.15rem .6rem;border-bottom:1px solid rgba(255,255,255,.07);">
+        <div style="font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:#4ade80;font-weight:700;margin-bottom:.5rem;">✦ What you've built together</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border-radius:7px;padding:.4rem .65rem;">
+            <div style="width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0;"></div>
+            <span style="font-size:.7rem;color:rgba(255,255,255,.8);flex:1;">Handling Change</span>
+            <span style="font-size:.6rem;color:#4ade80;font-weight:600;">fully aligned</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border-radius:7px;padding:.4rem .65rem;">
+            <div style="width:6px;height:6px;border-radius:50%;background:#86efac;flex-shrink:0;"></div>
+            <span style="font-size:.7rem;color:rgba(255,255,255,.8);flex:1;">Energy Style</span>
+            <span style="font-size:.6rem;color:#86efac;font-weight:600;">mostly in sync</span>
+          </div>
+        </div>
+      </div>
+      <!-- Where to focus -->
+      <div style="padding:.75rem 1.15rem .6rem;border-bottom:1px solid rgba(255,255,255,.07);">
+        <div style="font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:#fb923c;font-weight:700;margin-bottom:.5rem;">✦ Where to focus next</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem;">
+          <div style="display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border-radius:7px;padding:.4rem .65rem;cursor:pointer;">
+            <div style="width:6px;height:6px;border-radius:50%;background:#e8673a;flex-shrink:0;"></div>
+            <span style="font-size:.7rem;color:rgba(255,255,255,.8);flex:1;">Expressiveness</span>
+            <span style="font-size:.6rem;color:#e8673a;font-weight:600;">3 topics →</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.04);border-radius:7px;padding:.4rem .65rem;cursor:pointer;">
+            <div style="width:6px;height:6px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>
+            <span style="font-size:.7rem;color:rgba(255,255,255,.8);flex:1;">How You Decide</span>
+            <span style="font-size:.6rem;color:#f59e0b;font-weight:600;">2 topics →</span>
+          </div>
+        </div>
+      </div>
+      <!-- Type badges -->
+      <div style="padding:.7rem 1.15rem .9rem;display:flex;justify-content:space-between;align-items:center;">
+        <div style="text-align:center;">
+          <div style="font-size:.52rem;color:rgba(232,103,58,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.2rem;">Sarah</div>
+          <div style="font-size:.68rem;font-weight:700;color:#e8673a;background:rgba(232,103,58,.12);border-radius:6px;padding:.2rem .5rem;">ISFJ · The Nurturer</div>
+        </div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.2);">↔</div>
+        <div style="text-align:center;">
+          <div style="font-size:.52rem;color:rgba(27,95,232,.6);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.2rem;">James</div>
+          <div style="font-size:.68rem;font-weight:700;color:#7090f0;background:rgba(27,95,232,.12);border-radius:6px;padding:.2rem .5rem;">ENTP · The Challenger</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY IT MATTERS -->
+<section class="bg-warm" id="why">
+  <div class="si">
+    <p class="s-eye">Why it matters</p>
+    <h2 class="s-title">Couples who understand each other precisely grow together.</h2>
+    <p class="s-sub">Attune surfaces what you haven't thought to ask — and turns it into something you can actually use.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon-wrap" style="background:#FFF0EB;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E8673A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+        </div>
+        <h3 class="why-title">Know yourself more clearly</h3>
+        <p class="why-desc">The exercises reveal how you actually operate — not how you think you do, or how you think you should. That clarity is useful on its own, and transformative when shared.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon-wrap" style="background:#EEEFFF;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1B5FE8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3 class="why-title">Understand your partner in real depth</h3>
+        <p class="why-desc">Not just their general vibe — their actual wiring. How they recharge, what they need to feel loved, how they process hard moments. The things that usually take years to figure out.</p>
+      </div>
+      <div class="why-card">
+        <div class="why-icon-wrap" style="background:#EEFAF3;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h3 class="why-title">Build something that actually grows</h3>
+        <p class="why-desc">Understanding isn't a destination — it's a practice. Attune gives you a shared language and a real foundation to keep building from, not just a snapshot of where you are today.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU LEARN -->
+<section>
+  <div class="si">
+    <div class="what-layout">
+      <div>
+        <p class="s-eye">What you'll discover</p>
+        <h2 class="s-title">A complete view of how you each work — individually and together.</h2>
+        <p class="s-sub" style="margin-bottom:2.5rem;">Attune goes beyond general compatibility. It maps the specific ways you each show up — and gives you something meaningful and personal to explore together.</p>
+        <div class="what-list">
+          <div class="what-item">
+            <div class="what-icon-wrap" style="background:#FFF0EB;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E8673A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </div>
+            <div>
+              <h4>How You Communicate</h4>
+              <p>Your energy, emotional style, how you handle hard moments, how love lands for each of you — mapped across 8 dimensions you can actually talk about.</p>
+            </div>
+          </div>
+          <div class="what-item">
+            <div class="what-icon-wrap" style="background:#EEEFFF;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B5FE8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div>
+              <h4>What You Each Expect</h4>
+              <p>Finances, family, closeness, daily life — the assumptions that quietly shape everything, surfaced and compared across 10 categories so you can see them clearly.</p>
+            </div>
+          </div>
+          <div class="what-item">
+            <div class="what-icon-wrap" style="background:#EEFAF3;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <div>
+              <h4>Guidance Built for You Specifically</h4>
+              <p>Not generic tips — insights and actions drawn from the insights drawn from your answers. Useful the day you read it, and still useful months later.</p>
+            </div>
+          </div>
+          <div class="what-item">
+            <div class="what-icon-wrap" style="background:#FBF8F3;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C17F47" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <h4>Conversations You've Been Meaning to Have</h4>
+              <p>The topics where your expectations differ most — named and framed while the conversation is still easy, not after they've had time to become patterns.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rm">
+        <div class="rm-hdr">
+          <span class="rm-lbl">Your Results</span>
+          <div class="rm-tabs">
+            <span class="rm-tab a" id="rmt-overview" onclick="showRmTab('overview')">Overview</span>
+            <span class="rm-tab" id="rmt-comm" onclick="showRmTab('comm')">Communication</span>
+            <span class="rm-tab" id="rmt-exp" onclick="showRmTab('exp')">Expectations</span>
+          </div>
+        </div>
+
+        <!-- OVERVIEW PANEL -->
+        <div id="rmp-overview">
+          <div class="rm-hero">
+            <div class="rm-hlbl">Your Joint Results</div>
+            <div class="rm-hname">Sarah &amp; James</div>
+            <div class="rm-chips"><span class="rm-chip">8 dimensions mapped</span><span class="rm-chip">81% aligned</span></div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.38);">Completed independently. Built from your own answers.</div>
+          </div>
+          <div class="rm-grid">
+            <div class="rm-dim"><div class="rm-dim-left"><div class="rm-dlbl">Togetherness</div><div class="rm-dval"><span class="rm-dot" style="background:#34d399"></span>Mostly aligned</div></div><span class="rm-arrow">›</span></div>
+            <div class="rm-dim"><div class="rm-dim-left"><div class="rm-dlbl">Expressiveness</div><div class="rm-dval"><span class="rm-dot" style="background:#e8673a"></span>Worth exploring</div></div><span class="rm-arrow">›</span></div>
+            <div class="rm-dim"><div class="rm-dim-left"><div class="rm-dlbl">Handling Change</div><div class="rm-dval"><span class="rm-dot" style="background:#60a5fa"></span>Similar tolerances</div></div><span class="rm-arrow">›</span></div>
+            <div class="rm-dim"><div class="rm-dim-left"><div class="rm-dlbl">Energy Style</div><div class="rm-dval"><span class="rm-dot" style="background:#60a5fa"></span>Similar rhythms</div></div><span class="rm-arrow">›</span></div>
+            <div class="rm-dim"><div class="rm-dim-left"><div class="rm-dlbl">Planning Style</div><div class="rm-dval"><span class="rm-dot" style="background:#34d399"></span>Structure meets ease</div></div><span class="rm-arrow">›</span></div>
+            <div class="rm-dim"><div class="rm-dim-left"><div class="rm-dlbl">How You Decide</div><div class="rm-dval"><span class="rm-dot" style="background:#e8673a"></span>Different lenses</div></div><span class="rm-arrow">›</span></div>
+          </div>
+        </div>
+
+        <!-- COMMUNICATION PANEL -->
+        <div id="rmp-comm" style="display:none;">
+          <div class="rm-hero" style="background:linear-gradient(150deg,#3a1a0a,#6b2c10);margin-bottom:1rem;">
+            <div class="rm-hlbl" style="color:rgba(232,103,58,.75);">Communication · 8 Dimensions</div>
+            <div class="rm-hname" style="font-size:1.1rem;">How you're each wired</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.38);margin-top:.3rem;">Side-by-side across every dimension</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.45rem;">
+            <div style="background:white;border-radius:9px;padding:.7rem .9rem;border:1px solid #E8DDD0;">
+              <div style="font-size:.55rem;font-weight:700;color:#8C7A68;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;">Energy Style</div>
+              <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;">
+                <div style="font-size:.65rem;color:#E8673A;font-weight:600;width:40px;flex-shrink:0;">Sarah</div>
+                <div style="flex:1;background:#FBF8F3;border-radius:4px;height:6px;overflow:hidden;"><div style="background:#E8673A;height:6px;width:25%;border-radius:4px;"></div></div>
+                <div style="font-size:.62rem;color:#8C7A68;white-space:nowrap;">Inward-leaning</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <div style="font-size:.65rem;color:#1B5FE8;font-weight:600;width:40px;flex-shrink:0;">James</div>
+                <div style="flex:1;background:#FBF8F3;border-radius:4px;height:6px;overflow:hidden;"><div style="background:#1B5FE8;height:6px;width:75%;border-radius:4px;"></div></div>
+                <div style="font-size:.62rem;color:#8C7A68;white-space:nowrap;">Outward-leaning</div>
+              </div>
+            </div>
+            <div style="background:white;border-radius:9px;padding:.7rem .9rem;border:1px solid #E8DDD0;">
+              <div style="font-size:.55rem;font-weight:700;color:#8C7A68;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;">Conflict Style</div>
+              <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;">
+                <div style="font-size:.65rem;color:#E8673A;font-weight:600;width:40px;flex-shrink:0;">Sarah</div>
+                <div style="flex:1;background:#FBF8F3;border-radius:4px;height:6px;overflow:hidden;"><div style="background:#E8673A;height:6px;width:20%;border-radius:4px;"></div></div>
+                <div style="font-size:.62rem;color:#8C7A68;white-space:nowrap;">Resolve now</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:.5rem;">
+                <div style="font-size:.65rem;color:#1B5FE8;font-weight:600;width:40px;flex-shrink:0;">James</div>
+                <div style="flex:1;background:#FBF8F3;border-radius:4px;height:6px;overflow:hidden;"><div style="background:#1B5FE8;height:6px;width:72%;border-radius:4px;"></div></div>
+                <div style="font-size:.62rem;color:#8C7A68;white-space:nowrap;">Process first</div>
+              </div>
+            </div>
+            <div style="background:#FFF0EB;border-radius:9px;padding:.65rem .9rem;border:1px solid #E8673A30;">
+              <div style="font-size:.62rem;color:#E8673A;font-weight:600;">💡 Worth exploring</div>
+              <div style="font-size:.68rem;color:#1E1610;margin-top:.2rem;line-height:1.5;">You process conflict differently — Sarah moves toward resolution quickly while James needs time to decompress first.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPECTATIONS PANEL -->
+        <div id="rmp-exp" style="display:none;">
+          <div class="rm-hero" style="background:linear-gradient(150deg,#0f0f35,#1a1a5e);margin-bottom:1rem;">
+            <div class="rm-hlbl" style="color:rgba(91,109,248,.75);">Expectations · 43 Topics</div>
+            <div class="rm-hname" style="font-size:1.1rem;">What you each assumed</div>
+            <div style="font-size:.72rem;color:rgba(255,255,255,.38);margin-top:.3rem;">Across finances, family, and daily life</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.45rem;">
+            <div style="background:white;border-radius:9px;padding:.7rem .9rem;border:1px solid #E8DDD0;">
+              <div style="font-size:.55rem;font-weight:700;color:#8C7A68;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;">Finances — Who handles it?</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
+                <span style="font-size:.68rem;color:#1E1610;">Pay monthly bills</span>
+                <div style="display:flex;gap:.3rem;">
+                  <span style="font-size:.6rem;background:#EEF0FF;color:#1B5FE8;padding:.15rem .45rem;border-radius:4px;font-weight:600;">Sarah: James</span>
+                  <span style="font-size:.6rem;background:#EEF0FF;color:#1B5FE8;padding:.15rem .45rem;border-radius:4px;font-weight:600;">James: Both</span>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:.68rem;color:#1E1610;">Manage the household budget</span>
+                <div style="display:flex;gap:.3rem;">
+                  <span style="font-size:.6rem;background:#EDFAF5;color:#059669;padding:.15rem .45rem;border-radius:4px;font-weight:600;">Both ✓</span>
+                </div>
+              </div>
+            </div>
+            <div style="background:white;border-radius:9px;padding:.7rem .9rem;border:1px solid #E8DDD0;">
+              <div style="font-size:.55rem;font-weight:700;color:#8C7A68;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;">Affection under stress</div>
+              <div style="display:flex;gap:.5rem;align-items:flex-start;">
+                <div style="flex:1;background:#FFF0EB;border-radius:6px;padding:.45rem .55rem;">
+                  <div style="font-size:.58rem;color:#E8673A;font-weight:700;margin-bottom:.15rem;">Sarah</div>
+                  <div style="font-size:.65rem;color:#1E1610;line-height:1.4;">Needs more connection during hard times</div>
+                </div>
+                <div style="flex:1;background:#EEF0FF;border-radius:6px;padding:.45rem .55rem;">
+                  <div style="font-size:.58rem;color:#1B5FE8;font-weight:700;margin-bottom:.15rem;">James</div>
+                  <div style="font-size:.65rem;color:#1E1610;line-height:1.4;">Pulls back and needs space</div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#FFF0EB;border-radius:9px;padding:.65rem .9rem;border:1px solid #E8673A30;">
+              <div style="font-size:.62rem;color:#E8673A;font-weight:600;">💡 A conversation worth having</div>
+              <div style="font-size:.68rem;color:#1E1610;margin-top:.2rem;line-height:1.5;">During stress, Sarah reaches for closeness while James withdraws. Without naming this, Sarah reads distance as rejection — James reads pursuit as pressure. A loop that escalates quietly.</div>
+              <div style="margin-top:.5rem;background:white;border-radius:6px;padding:.45rem .6rem;border-left:2px solid #E8673A;">
+                <div style="font-size:.57rem;font-weight:700;color:#E8673A;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;">Try this</div>
+                <div style="font-size:.65rem;color:#1E1610;line-height:1.55;">Agree on a signal before the hard moment arrives. James names when he needs space and offers a rough timeline. Sarah names when she needs reconnection. Neither reads the other's need as a statement about the relationship.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+      function showRmTab(tab) {
+        ['overview','comm','exp'].forEach(function(t){
+          document.getElementById('rmp-'+t).style.display = t===tab?'block':'none';
+          var el = document.getElementById('rmt-'+t);
+          if(el){el.className = 'rm-tab'+(t===tab?' a':'');}
+        });
+      }
+      </script>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- PURPOSE TEASER -->
+<section class="bg-warm">
+  <div class="si" style="display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap;padding-top:3rem;padding-bottom:3rem;">
+    <div>
+      <p class="s-eye" style="margin-bottom:.7rem">Our purpose</p>
+      <p class="s-title" style="margin-bottom:0;max-width:480px">You love each other.<br>Attune helps you understand each other.</p>
+    </div>
+    <a href="/purpose" class="btn-primary" style="flex-shrink:0">Read our purpose →</a>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section class="proof-section">
+  <div class="proof-inner">
+    <p class="s-eye">What couples are saying</p>
+    <div class="proof-grid">
+      <div class="proof-card">
+        <div class="proof-stars">★★★★★</div>
+        <p class="proof-text">"I thought I knew James pretty well after four years. Attune showed me there were things we'd just never thought to ask each other. The expectations comparison alone was worth it."</p>
+        <div class="proof-person">
+          <div class="proof-avatar" style="background:linear-gradient(135deg,#E8673A,#f59e0b)">S</div>
+          <div>
+            <div class="proof-name">Sarah M.</div>
+            <div class="proof-detail">Together 4 years · Anniversary package</div>
+          </div>
+        </div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-stars">★★★★★</div>
+        <p class="proof-text">"We're getting married in three months and this was the best pre-wedding thing we did. Way more useful than premarital counseling worksheets. We actually learned something new."</p>
+        <div class="proof-person">
+          <div class="proof-avatar" style="background:linear-gradient(135deg,#1B5FE8,#2563EB)">A</div>
+          <div>
+            <div class="proof-name">Alex & Jordan T.</div>
+            <div class="proof-detail">Engaged · Starting Out package</div>
+          </div>
+        </div>
+      </div>
+      <div class="proof-card">
+        <div class="proof-stars">★★★★★</div>
+        <p class="proof-text">"The LMFT session was what made it. She'd read our results beforehand and came prepared with actual observations about us specifically. Not generic advice — our stuff."</p>
+        <div class="proof-person">
+          <div class="proof-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">M</div>
+          <div>
+            <div class="proof-name">Maya & Chris R.</div>
+            <div class="proof-detail">Married 7 years · Premium package</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="proof-stat-row">
+      <div class="proof-stat">
+        <div class="proof-stat-num">2,400+</div>
+        <div class="proof-stat-label">Couples completed</div>
+      </div>
+      <div class="proof-stat">
+        <div class="proof-stat-num">4.9</div>
+        <div class="proof-stat-label">Average rating</div>
+      </div>
+      <div class="proof-stat">
+        <div class="proof-stat-num">73%</div>
+        <div class="proof-stat-label">Say they learned something surprising</div>
+      </div>
+      <div class="proof-stat">
+        <div class="proof-stat-num">91%</div>
+        <div class="proof-stat-label">Would recommend to a friend</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <div class="cta-inner">
+    <h2 class="cta-title">The conversation you've been meaning to have. Start it here.</h2>
+    <p class="cta-sub">About 25 minutes each. What you learn is yours to keep.</p>
+    <div class="cta-actions">
+      <a href="/portal" class="btn-primary">Start your exercises →</a>
+      <a href="/offerings" class="btn-ghost">Browse gifts &amp; packages</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="sf-inner">
+    <div class="sf-brand">
+      <a href="/home" class="logo">
+        <svg width="46" height="33" viewBox="0 0 103 76" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="spark_logo_0_1" x1="0" y1="0" x2="103" y2="76" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#E8673A"/><stop offset="100%" stop-color="#1B5FE8"/></linearGradient></defs><path d="M14,4 L44,4 A9,9 0 0,1 53,13 L53,42 A9,9 0 0,1 44,51 L20,51 L6,61 L11,51 A6,6 0 0,1 5,45 L5,13 A9,9 0 0,1 14,4 Z" fill="url(#spark_logo_0_1)"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="white" opacity="0.93" transform="translate(13.16,11.3) scale(0.72)"/><path d="M89,14 L59,14 A9,9 0 0,0 50,23 L50,52 A9,9 0 0,0 59,61 L83,61 L97,71 L92,61 A6,6 0 0,0 98,55 L98,23 A9,9 0 0,0 89,14 Z" fill="none" stroke="url(#spark_logo_0_1)" stroke-width="2.2" stroke-linejoin="round"/><path d="M22 11 C20 8.5 16.5 5 11.5 5 C5.5 5 2 9.5 2 14.5 C2 23 11 30 22 40 C33 30 42 23 42 14.5 C42 9.5 38.5 5 32.5 5 C27.5 5 24 8.5 22 11 Z" fill="url(#spark_logo_0_1)" transform="translate(58.16,21.3) scale(0.72)"/></svg>
+        <span class="logo-text" style="font-size:1.05rem;">Attune</span>
+      </a>
+      <p class="sf-tagline">Attune, because understanding<br>takes intention.</p>
+    </div>
+    <div class="sf-links">
+      <div class="sf-col">
+        <p class="sf-col-title">Product</p>
+        <a href="/home">Home</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/offerings">Gifts &amp; Packages</a>
+        <a href="/portal">Get started</a>
+      </div>
+      <div class="sf-col">
+        <p class="sf-col-title">Learn</p>
+        <a href="/purpose">Our Purpose</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/whats-included">What's included</a>
+        <a href="/resources">Resources</a>
+        <a href="/faq">FAQs</a>
+        <a href="/reviews">Reviews</a>
+      </div>
+      <div class="sf-col">
+        <p class="sf-col-title">Support</p>
+        <a href="/faq">FAQs</a>
+        <a href="mailto:hello@attune.com">Contact us</a>
+        <a href="/legal">Privacy policy</a>
+        <a href="/legal#terms">Terms of service</a>
+      </div>
+      <div class="sf-col">
+        <p class="sf-col-title">Account</p>
+        <a href="/portal">Sign in</a>
+        <a href="/portal">Create account</a>
+        <a href="/offerings">Browse packages</a>
+      </div>
+    </div>
+  </div>
+  <div class="sf-bottom">
+    <p class="sf-copy">© 2025 Attune.</p>
+    <p class="sf-email">hello@attune.com</p>
+  </div>
+  <!-- Feedback strip -->
+  <div style="background:rgba(255,255,255,.04);border-top:1px solid rgba(255,255,255,.06);padding:.85rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <span style="font-size:.7rem;color:rgba(255,255,255,.4);font-style:italic;">How's Attune working for you?</span>
+    <div style="display:flex;gap:.4rem;">
+      <button onclick="window._sparkFeedback('love')" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:.3rem .65rem;font-size:.72rem;color:rgba(255,255,255,.6);cursor:pointer;">❤️ Love it</button>
+      <button onclick="window._sparkFeedback('good')" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:.3rem .65rem;font-size:.72rem;color:rgba(255,255,255,.6);cursor:pointer;">👍 Pretty good</button>
+      <button onclick="window._sparkFeedback('suggest')" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:.3rem .65rem;font-size:.72rem;color:rgba(255,255,255,.6);cursor:pointer;">💬 Suggest something</button>
+    </div>
+    <span id="spark-feedback-thanks" style="font-size:.7rem;color:#4ade80;display:none;">Thanks for the feedback ✓</span>
+  </div>
+  <script>
+  window._sparkFeedback = function(type) {
+    if(type==='suggest'){
+      var msg = prompt('What would make Attune better for you?');
+      if(msg){ console.log('Attune feedback (suggest):', msg); }
+    }
+    document.getElementById('spark-feedback-thanks').style.display='inline';
+  };
+  </script>
+</footer>
+
+<script>
+function toggleMenu() {
+  const m = document.getElementById('mobile-menu');
+  m.classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('hamburger');
+  if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.remove('open');
+  }
+});
+
+const descs = {
+  foryou: "Couples complete their exercises independently, your answers combine into a shared understanding of how you each think, what you each expect, and where you naturally complement each other.",
+  gift: "Purchase Attune for a couple you love. They'll each complete the exercises on their own — and unlock a joint understanding of themselves and each other that most couples never find."
+};
+const ctas = {
+  foryou: "Start your exercises →",
+  gift: "Browse gifts & packages →"
+};
+const ctaLinks = {
+  foryou: "/portal",
+  gift: "/offerings"
+};
+function setUse(mode) {
+  document.getElementById('btn-foryou').className = 'use-btn' + (mode==='foryou'?' active':'');
+  document.getElementById('btn-gift').className = 'use-btn' + (mode==='gift'?' active':'');
+  document.getElementById('use-desc').textContent = descs[mode];
+  document.getElementById('hero-cta').textContent = ctas[mode];
+  document.getElementById('hero-cta').href = ctaLinks[mode];
+}
+
+  // Close mobile menu on outside tap
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('mobile-menu');
+    const burger = document.getElementById('hamburger');
+    if (menu && menu.classList.contains('open') && !menu.contains(e.target) && !burger.contains(e.target)) {
+      menu.classList.remove('open');
+      burger.classList.remove('open');
+    }
+  });
+</script>
+</body>
+</html>

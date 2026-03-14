@@ -1,0 +1,27 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/home", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/api/send-order-email", "destination": "/api/send-order-email.js" },
+    { "source": "/api/send-feedback",    "destination": "/api/send-feedback.js" },
+    { "source": "/home",          "destination": "/home.html" },
+    { "source": "/how-it-works",  "destination": "/how-it-works.html" },
+    { "source": "/offerings",     "destination": "/offerings.html" },
+    { "source": "/portal",        "destination": "/portal.html" },
+    { "source": "/checkout",      "destination": "/checkout.html" },
+    { "source": "/admin",         "destination": "/admin.html" },
+    { "source": "/legal",         "destination": "/legal.html" },
+    { "source": "/whats-included","destination": "/whats-included.html" },
+    { "source": "/faq",           "destination": "/faq.html" },
+    { "source": "/resources",     "destination": "/resources.html" },
+    { "source": "/reviews",       "destination": "/reviews.html" },
+    { "source": "/purpose",       "destination": "/purpose.html" },
+    { "source": "/gift-cards",    "destination": "/gift-cards.html" },
+    { "source": "/qr-card",       "destination": "/qr-card.html" },
+    { "source": "/qr-card-v2",    "destination": "/qr-card-v2.html" },
+    { "source": "/app",           "destination": "/index.html" },
+    { "source": "/app/(.*)",      "destination": "/index.html" },
+    { "source": "/(.*)",          "destination": "/index.html" }
+  ]
+}
